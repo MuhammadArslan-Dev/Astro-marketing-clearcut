@@ -122,9 +122,18 @@ Verified via `npm run build` (canonical resolves to `https://clearcutoff.in/go/h
 - Pricing, FAQ, footer, mobile sticky CTA — unchanged.
 - Checked in-browser: problem cards, connected step circles, and full scroll-through all render correctly.
 
+## Deployment — done, live in production
+
+`https://clearcutoff.in/go/htet` is live end-to-end (DNS → Worker → Pages → Astro). What it took:
+
+- **GitHub repo confusion, resolved:** the user's first local `git init`/push accidentally targeted a differently-named, pre-existing repo (`clearcut-astro`) instead of the one actually intended (`Astro-marketing-clearcut`, created empty via GitHub's UI). Fixed by pointing `origin` at the correct repo and re-pushing. `clearcut-astro` was left as-is on GitHub (not deleted) — still contains an early copy of the code, harmless but not the repo in active use.
+- **Cleaned a real mistake before pushing:** `worker/.wrangler/` (local miniflare dev cache/db, bundled temp JS) had been committed by accident. Untracked it and added `.wrangler/` to `.gitignore`.
+- **Cloudflare Pages project created** via dashboard → Workers & Pages → Create → Pages → "Import an existing Git repository" → GitHub → `Astro-marketing-clearcut`. Had to grant the "Cloudflare Workers and Pages" GitHub App access to this repo first (Settings → Applications → Cloudflare Workers and Pages → Repository access) — it only had `clearcut-turbo` authorized initially. Framework preset `Astro` auto-filled `npm run build` / `dist`; added `NODE_VERSION=22` env var (Astro 7 needs Node ≥22.12). Live at `astro-marketing-clearcut.pages.dev`.
+- **`worker/wrangler.toml`** `PAGES_ORIGIN` updated to the real Pages URL; `npx wrangler login` (OAuth, browser-driven) then `npx wrangler deploy` from `worker/` — deployed cleanly, both routes registered.
+- **Root-cause bug #1 — DNS not proxied:** first live test 404'd. `clearcutoff.in`'s DNS record was "DNS only" (grey cloud) — nameservers were on Cloudflare but the record itself bypassed Cloudflare's edge entirely, so the Worker route never fired; every request went straight to the VPS. Confirmed safe (other subdomains on the same origin IP were already proxied) and switched to "Proxied" in DNS → Records. This affects the *entire* site's traffic, not just `/go` — flagged to the user and got explicit confirmation before changing it, since it's live production DNS.
+- **Root-cause bug #2 — redirect dropped the `/go` prefix:** with DNS fixed, `/go/htet` returned a 308 to `/htet/` (no `/go`). Cause: Astro's directory-style output (`dist/htet/index.html`) makes Cloudflare Pages 308-redirect `/htet` → `/htet/` to add the trailing slash, and that `Location` header passes through the Worker unmodified — the browser resolves it against `clearcutoff.in`, losing `/go`. Fixed at the source: added `build: { format: 'file' }` to `astro.config.mjs`, so Astro emits `dist/htet.html` (flat file) instead — Pages serves it directly with no redirect needed at all.
+- Verified: `curl -v https://clearcutoff.in/go/htet` → `200 OK` via Cloudflare (`server: cloudflare`, `cf-ray` present), and confirmed visually in-browser — fully styled, matches the local dev version exactly. Also re-checked `https://clearcutoff.in` itself post-DNS-change — main site unaffected.
+
 ## Still open / TODO
 
-- [ ] Set up Cloudflare Pages project + connect this repo's root (not `worker/`) as the build source; then update `PAGES_ORIGIN` in `worker/wrangler.toml`
-- [ ] `wrangler deploy` the Worker once `PAGES_ORIGIN` is real and the `clearcutoff.in` zone is confirmed on Cloudflare DNS
-- [ ] Add the `/go/sitemap.xml` entry to `apps/landing/src/app/robots.ts`'s `sitemap` array (one-line change, see above)
 - [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern)
