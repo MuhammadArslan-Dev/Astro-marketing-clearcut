@@ -1,0 +1,130 @@
+# Project Plan — Astro Marketing (clearcutoff.in/go/*)
+
+## Overview
+
+Main site (landing, blog, dashboard — Next.js / Turborepo) runs on a **VPS**.
+This repo is a **separate, standalone repo** for marketing / course landing pages, built with **Astro**, deployed to **Cloudflare Pages** as static HTML.
+
+Pages are served under the path `clearcutoff.in/go/*` (not a subdomain) — this keeps SEO authority on the main domain while keeping the two codebases fully decoupled. No shared design system: each page can have its own one-off design for fast turnaround.
+
+## Why this architecture
+
+- Marketing pages will carry ad-campaign traffic spikes — routing them through Cloudflare Pages (edge, static) means the VPS (dashboard/landing) is never affected.
+- Domain DNS is on Cloudflare → a Cloudflare Worker can route `/go/*` directly to Cloudflare Pages at the edge, without the request ever touching the VPS.
+- Subdirectory (`/go/`) instead of subdomain (`go.clearcutoff.in`) → inherits main domain's SEO authority.
+- Separate repo, no shared design system → building/iterating new landing pages fast, without coupling to the Turborepo.
+
+## Routing
+
+```
+User → Cloudflare edge
+         ├── /go/*  → Worker → Cloudflare Pages (this repo's static build)
+         └── other  → VPS (Next.js landing/blog/dashboard)
+```
+
+- Cloudflare Worker route: `clearcutoff.in/go/*`
+- Worker forwards request to this repo's Cloudflare Pages deployment
+- **Important:** Worker must strip the `/go` prefix before forwarding — Astro's `base` config does NOT change build output paths, so `/go/react-course` on the domain maps to `/react-course` on the Pages deployment (same for assets, e.g. `/go/_astro/style.css` → `/_astro/style.css`).
+
+Fallback option (if DNS were ever not on Cloudflare): Nginx `location /go/` proxy on the VPS to the Pages deployment — works, but routes traffic through the VPS, losing the load-isolation benefit. Not needed for this setup.
+
+## Required Astro config (`astro.config.mjs`)
+
+```js
+export default defineConfig({
+  site: 'https://clearcutoff.in',   // NOT the *.pages.dev URL — keeps canonical tags correct
+  base: '/go',                       // required, or assets 404 on the live domain
+  trailingSlash: 'never',            // must match the Worker/proxy's expectation, or redirect loops
+})
+```
+
+## Common failure points (checklist before shipping a page)
+
+- [ ] `base: '/go'` set in astro.config.mjs — missing this is the #1 cause of "page loads but totally unstyled"
+- [ ] Worker strips `/go` prefix when forwarding to Pages
+- [ ] `trailingSlash` matches between Astro config and the Worker/proxy (avoid redirect loops)
+- [ ] Cloudflare Pages deployment has `_headers` file setting `X-Robots-Tag: noindex` (prevents `*.pages.dev` being indexed as duplicate content)
+- [ ] Astro's generated sitemap (`/go/sitemap.xml`) is manually added to the **main site's** `robots.txt` (served from the VPS) — this does not happen automatically
+
+## Repo structure
+
+```
+astro-marketing/  (this repo — standalone, outside the Turborepo)
+└── src/pages/
+    ├── react-course.astro      → clearcutoff.in/go/react-course
+    ├── python-bootcamp.astro   → clearcutoff.in/go/python-bootcamp
+    └── ...
+```
+
+## Design system
+
+No shared component library / layout with the main app — keeps this repo fast to iterate on, each page still free to lay itself out however it wants.
+
+**Colors ARE shared at the token level (added later, see below):** Tailwind CSS v4 is installed, with brand colors defined once in `src/styles/global.css` via an `@theme` block, mirrored from the real values in `apps/landing/project-style-guide.md` (brand blue `#0083FF`, success green `#00A251`, text/border grays, etc.). Tailwind v4 auto-generates utilities from these — `--color-brand` gives `bg-brand`, `text-brand`, `border-brand`, etc. Every page should `import "../styles/global.css"` and use these utility classes instead of hardcoding hex colors, so the whole site stays on-brand without a shared npm package.
+
+## Turborepo (`D:\clearcutoff-projects\clearcut-master`) — integration notes
+
+Checked the `landing` app (Next 16, React 19, next-intl 4). Findings relevant to this integration:
+
+- **No `next.config.ts` rewrite needed for `/go`.** Routing happens at the Cloudflare edge (Worker), so `/go/*` requests never reach the VPS/Next app at all — confirmed there's currently no `/go` rewrite in `apps/landing/next.config.ts`, and none needs to be added.
+- **Next 16 renamed `middleware.ts` to `proxy.ts`.** The active file is `apps/landing/src/proxy.ts`, wrapping `next-intl`'s `createMiddleware(routing)`. Its matcher (`/((?!api|trpc|_next|_vercel|.*\..*).*)`) does not exclude `/go`, but since the Worker intercepts `/go/*` before it hits origin, this is moot — it's noted here only in case the Worker/routing setup ever changes and `/go` traffic starts reaching the VPS directly (e.g. Nginx-fallback path). If that happens, exclude `/go` from this matcher too: `localePrefix` is `as-needed` with `defaultLocale: "en"` and `localeDetection: false` (`packages/i18n/routing.ts`), so it would likely pass `/go/*` through unaffected regardless, but excluding it outright removes any doubt.
+- **Sitemap wiring is simpler than initially planned.** `apps/landing/src/app/robots.ts` is a dynamic `MetadataRoute.Robots` (no static `robots.txt` file exists). Its `sitemap` field currently is a single string (`https://clearcutoff.in/sitemap.xml`) but Next's type allows `string | string[]` — so adding the Astro sitemap is a one-line change to an array: `sitemap: ["https://clearcutoff.in/sitemap.xml", "https://clearcutoff.in/go/sitemap.xml"]`.
+- **`_headers` noindex nuance (new):** the Pages `_headers` rule (`X-Robots-Tag: noindex`) is meant only for direct `*.pages.dev` visits. Since the Worker fetches from Pages and returns that response for `clearcutoff.in/go/*`, the header would otherwise leak onto the real, indexable `/go/*` pages too. **The Worker script must strip `X-Robots-Tag` from the upstream Pages response** before returning it on the `clearcutoff.in` host.
+
+## Astro project — scaffolded
+
+Done in this repo:
+- `npm create astro@latest` (minimal + TypeScript strict template), deps installed
+- `astro.config.mjs` — `site: 'https://clearcutoff.in'`, `base: '/go'`, `trailingSlash: 'never'`
+- `public/_headers` — `X-Robots-Tag: noindex` (for direct pages.dev access; see Worker note above)
+- `src/pages/index.astro` — placeholder page, demonstrates the required pattern for static asset links: `import.meta.env.BASE_URL` (normalized, trailing slash stripped) prefixed onto every asset path, e.g. `${base}/favicon.svg` → builds to `/go/favicon.svg`. **Every future page must follow this pattern** — a hardcoded `href="/whatever.svg"` will 404 in production even with `base` configured correctly, since `base` only affects paths Astro itself generates, not literal strings you write.
+- Verified with `npm run build`: output HTML correctly resolves to `/go/favicon.svg` etc., and confirmed build output stays at `dist/index.html` (not `dist/go/index.html`) — reconfirms the Worker's job of stripping `/go` before forwarding to Pages.
+
+## Cloudflare Worker — done
+
+Lives in `worker/` (separate `package.json`/`wrangler.toml`, deployed independently from the Astro site itself):
+- `worker/src/index.ts` — strips `/go` prefix on the way in, strips `Host` header before the upstream fetch, strips `X-Robots-Tag` on the way out (see "New nuance" above). Guards against the prefix matching `/gophers`-style paths (`isGoPath` requires an exact `/go` or a `/go/` boundary).
+- `worker/wrangler.toml` — routes for both `clearcutoff.in/go` and `clearcutoff.in/go/*`; `PAGES_ORIGIN` var is currently the placeholder `https://cc-marketing.pages.dev`, **must be updated once the real Pages project exists**.
+- Verified: `tsc --noEmit` clean, `wrangler dev` boots and proxies correctly (tested against the placeholder domain — got Cloudflare's expected 404 for a non-existent pages.dev site, confirming the request path/logic itself works).
+- See `worker/README.md` for setup/deploy steps.
+
+## First marketing page — done
+
+`src/pages/htet.astro` → `clearcutoff.in/go/htet`. Content pulled from real data in the Turborepo rather than invented:
+- Exam facts (full name, BSEH conducting body, biannual frequency, PRT/TGT/PGT levels) from `apps/landing/src/lib/data/staticExams.ts`
+- Hero copy (PYQ-based tests/notes/videos framing) matches the real copy already in `apps/landing/src/components/sections/heros/HomeHero.tsx`
+- Pricing (₹499, was ₹900) from the same `staticExams.ts` record
+- Brand blue (`#0083FF`) pulled from `apps/landing/project-style-guide.md` for a light brand touch — page is otherwise self-contained (inline `<style>`, no shared design system, per the earlier decision)
+- CTA links out to the real course page: `https://clearcutoff.in/exam/htet`
+- Deliberately did NOT claim things not confirmed in the data (e.g. AI evaluation — `ai_evaluation_supported` is `null` for HTET; specific question/marks counts — not in the data) to avoid a false claim on a public page
+
+Verified via `npm run build` (canonical resolves to `https://clearcutoff.in/go/htet`, assets to `/go/...`) and visually in-browser via `astro preview`.
+
+**Design pass (round 2):** sticky blurred navbar, hero decorative gradient blobs + eyebrow badge + logo in a circular frame, icon-accented facts strip and feature cards (inline SVGs, no icon library dependency), redesigned pricing card (badge, checklist, shadow), FAQ with a rotating chevron, gradient footer CTA, and a mobile-only sticky bottom price/CTA bar (`@media max-width:640px`, hidden on desktop). Checked in-browser: hero, facts, features, pricing badge, and FAQ toggle/chevron all render and interact correctly. The mobile sticky bar was verified at the compiled-CSS level (`dist/_astro/htet.*.css` — confirmed `display:none` by default, `position:fixed`/`flex` only inside the `640px` media query) since the browser tool's window-resize didn't reflect in this environment's live viewport.
+
+**Design pass (round 3) — migrated to Tailwind CSS v4:**
+- Added `tailwindcss` + `@tailwindcss/vite`, wired into `astro.config.mjs` via `vite.plugins: [tailwindcss()]` (Tailwind v4's Vite-plugin setup, no `tailwind.config.js` needed)
+- `src/styles/global.css` — `@import "tailwindcss";` plus an `@theme` block with the brand color tokens (see Design system section above). Every page imports this file.
+- Rewrote `htet.astro`'s hand-written `<style>` block entirely as Tailwind utility classes (only a couple of lines of raw CSS remain, for the mobile-CTA `main` padding toggle — cleaner as plain CSS than a `sm:`-prefixed utility chain). FAQ chevron rotation now uses Tailwind's `group`/`group-open:rotate-90` pattern instead of a custom CSS selector.
+- Verified: `npm run build` succeeds, confirmed in the compiled output that `.bg-brand`/`.text-brand` (and other token utilities) exist and correctly reference `--color-brand: #0083ff` from the `@theme` block — i.e. the "global level" color wiring is real, not just visually coincidental. Re-checked the page in-browser (hero, facts, features, pricing, FAQ chevron open/close) — pixel-identical to the pre-Tailwind version, all interactions intact.
+- `index.astro` also imports `global.css` now, for consistency across pages, though it's still just a minimal placeholder.
+
+**Follow-up cleanup — confirmed nothing was left outside Tailwind:** a check turned up two loose ends, both fixed:
+- A leftover plain `<style>` block (mobile-CTA padding-bottom toggle) — replaced with `pb-[72px] sm:pb-0` directly on `<main>`, so `src/pages/*.astro` now has zero raw `<style>` blocks.
+- The rating-star fill color was a hardcoded `fill-[#f5a623]` arbitrary value, not a theme token — added `--color-rating: #f5a623` to `global.css`'s `@theme` (noted as this repo's own addition, not from the Turborepo tokens) and switched to `fill-rating`.
+- Verified via `grep` there are no `<style>` blocks and no hardcoded hex colors left in `src/pages/`, and confirmed in the compiled CSS that both `.fill-rating` and `.sm:pb-0` resolve correctly (the latter scoped inside `@media (width>=40rem)`).
+
+**Design pass (round 4) — messaging/narrative rework:** the page had facts and a feature grid but never actually stated the *problem* the visitor has before pitching the solution. Restructured the flow into a proper problem → solution → proof → offer sequence:
+- Hero (attention) — unchanged
+- New **"Sound familiar?" problem section** — 3 honest, relatable friction points (scattered notes across YouTube/Telegram/PDFs, practice that doesn't match the real pattern, not knowing which sections are weak). Deliberately phrased as relatable statements, not fabricated statistics ("90% fail because...") — nothing here is a claim that needs data backing.
+- Replaced the old flat "What's included" 2x2 feature grid with a **numbered "How it works" 3-step process** (Practice by section → Simulate exam day → Close the gaps), with a connecting line between numbered circles (CSS-only stepper: a full-width line behind the circles, each circle given a `ring-8 ring-white` halo to visually break the line at each node). This reframes the same real features as a logical progression instead of an unordered list, which is a stronger sell.
+- Exam facts strip moved to *after* the how-it-works section, right before pricing — functions as final credibility/legitimacy proof (real exam, real conducting body) right before the ask, rather than sitting disconnected near the top.
+- Pricing, FAQ, footer, mobile sticky CTA — unchanged.
+- Checked in-browser: problem cards, connected step circles, and full scroll-through all render correctly.
+
+## Still open / TODO
+
+- [ ] Set up Cloudflare Pages project + connect this repo's root (not `worker/`) as the build source; then update `PAGES_ORIGIN` in `worker/wrangler.toml`
+- [ ] `wrangler deploy` the Worker once `PAGES_ORIGIN` is real and the `clearcutoff.in` zone is confirmed on Cloudflare DNS
+- [ ] Add the `/go/sitemap.xml` entry to `apps/landing/src/app/robots.ts`'s `sitemap` array (one-line change, see above)
+- [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern)

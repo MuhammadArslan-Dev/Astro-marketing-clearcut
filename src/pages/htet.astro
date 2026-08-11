@@ -1,0 +1,326 @@
+---
+import "../styles/global.css";
+
+// Static asset paths must go through BASE_URL (see src/pages/index.astro
+// for why) — normalized here since its trailing slash isn't guaranteed.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const examUrl = "https://clearcutoff.in/exam/htet";
+const logoUrl =
+	"https://cc-teaching-content-ind.s3.dualstack.ap-south-1.amazonaws.com/exam%20logo/Webp/htet.webp";
+
+const title = "HTET Exam Preparation Online — PYQ Mock Tests, Notes & Videos | Clearcutoff";
+const description =
+	"Prepare for HTET (Haryana Teacher Eligibility Test) with PYQ-based mock tests, sectional tests, full-length papers, notes and video lessons — all in one place.";
+
+const ICONS: Record<string, string> = {
+	target:
+		'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>',
+	layers:
+		'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+	clock:
+		'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+	book: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>',
+	award:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"></path></svg>',
+	building:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><path d="M9 22v-4h6v4"></path><path d="M9 8h1M14 8h1M9 12h1M14 12h1"></path></svg>',
+	calendar:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+	stack:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="4" rx="1"></rect><rect x="4" y="10" width="16" height="4" rx="1"></rect><rect x="4" y="16" width="16" height="4" rx="1"></rect></svg>',
+	check:
+		'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+	issue:
+		'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+};
+
+// Problem → Solution framing: name the real friction points HTET aspirants
+// hit, then show the exam-page feature set as the three-step fix for them,
+// rather than a flat, unmotivated feature list.
+const painPoints = [
+	"Notes scattered across YouTube, Telegram groups and old PDFs",
+	"Practice questions that don't match the real HTET pattern",
+	"No clear idea which sections need the most work before exam day",
+];
+
+const steps = [
+	{
+		n: "1",
+		title: "Practice by section",
+		desc: "PYQ-based mock tests and sectional tests — drill each topic until it clicks.",
+	},
+	{
+		n: "2",
+		title: "Simulate exam day",
+		desc: "Full-length, timed papers under real HTET conditions.",
+	},
+	{
+		n: "3",
+		title: "Close the gaps",
+		desc: "Notes and video lessons to fix exactly what's weak.",
+	},
+];
+
+const facts = [
+	{ label: "Full name", value: "Haryana Teacher Eligibility Test", icon: "award" },
+	{ label: "Conducting body", value: "Board of School Education, Haryana (BSEH)", icon: "building" },
+	{ label: "Frequency", value: "Biannual", icon: "calendar" },
+	{ label: "Levels", value: "Level 1 (PRT) · Level 2 (TGT) · Level 3 (PGT)", icon: "stack" },
+];
+
+const priceIncludes = [
+	"PYQ-based mock tests",
+	"Sectional & full-length papers",
+	"Notes & video lessons",
+	"No recurring charges",
+];
+
+const faqs = [
+	{
+		q: "What is HTET?",
+		a: "HTET (Haryana Teacher Eligibility Test) is the teacher eligibility exam conducted by the Board of School Education, Haryana (BSEH) for Level 1 (PRT), Level 2 (TGT) and Level 3 (PGT) teaching posts in Haryana.",
+	},
+	{
+		q: "How often is HTET conducted?",
+		a: "HTET is conducted biannually by BSEH.",
+	},
+	{
+		q: "What do I get with Clearcutoff's HTET prep?",
+		a: "PYQ-based mock tests, sectional tests, full-length papers, notes and video lessons — covering all three HTET levels.",
+	},
+];
+
+const btnPrimary =
+	"inline-block rounded-full font-semibold no-underline text-[15px] px-6 py-3 bg-brand text-white shadow-lg transition hover:-translate-y-px hover:bg-brand-dark active:translate-y-0";
+const btnOutline =
+	"inline-block rounded-full font-semibold no-underline text-[15px] px-5 py-2.5 bg-transparent text-brand border border-brand transition hover:-translate-y-px hover:bg-primary-subtle active:translate-y-0";
+const btnLg = "px-8 py-[15px] text-base";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+		<link rel="icon" href={`${base}/favicon.ico`} />
+		<meta name="generator" content={Astro.generator} />
+
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<link rel="canonical" href={Astro.url.href} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:url" content={Astro.url.href} />
+		<meta property="og:image" content={logoUrl} />
+		<meta name="twitter:card" content="summary" />
+	</head>
+	<body class="m-0 p-0 font-sans text-text-normal bg-white leading-relaxed antialiased">
+		<header class="sticky top-0 z-20 bg-white/85 backdrop-blur-md border-b border-border-subtle">
+			<div class="max-w-[1040px] mx-auto px-5 flex items-center justify-between py-4">
+				<span class="font-extrabold text-lg tracking-tight text-text-normal">Clearcutoff</span>
+				<a class={btnOutline} href={examUrl}>View plans</a>
+			</div>
+		</header>
+
+		<main class="pb-[72px] sm:pb-0">
+			<section class="relative overflow-hidden pt-[72px] pb-14 bg-linear-to-b from-primary-subtle to-white">
+				<div
+					class="absolute w-80 h-80 rounded-full bg-brand blur-[60px] opacity-35 pointer-events-none -top-36 -left-24"
+					aria-hidden="true"
+				>
+				</div>
+				<div
+					class="absolute w-[260px] h-[260px] rounded-full bg-success blur-[60px] opacity-[0.18] pointer-events-none -bottom-28 -right-20"
+					aria-hidden="true"
+				>
+				</div>
+				<div class="relative max-w-[1040px] mx-auto px-5 text-center flex flex-col items-center">
+					<span
+						class="inline-block bg-white border border-border-subtle text-brand-dark text-[13px] font-semibold px-4 py-1.5 rounded-full mb-6 shadow-sm"
+					>
+						HTET · Level 1, 2 &amp; 3
+					</span>
+					<div class="w-[88px] h-[88px] rounded-full bg-white flex items-center justify-center shadow-md mb-6">
+						<img class="rounded-xl" src={logoUrl} alt="HTET logo" width="56" height="56" loading="eager" />
+					</div>
+					<h1 class="text-[clamp(28px,4vw,44px)] leading-[1.15] font-extrabold tracking-tight mb-4 max-w-[720px]">
+						Crack the <span class="text-brand">HTET</span> exam with PYQ-based tests, notes and videos
+					</h1>
+					<p class="text-lg text-text-subtle max-w-[600px] mb-8">
+						Real exam-level questions, sectional tests and full-length papers — all in one place.
+					</p>
+					<div class="flex flex-col items-center gap-3.5">
+						<a class={`${btnPrimary} ${btnLg}`} href={examUrl}>Start preparing — ₹499</a>
+						<span class="inline-flex items-center gap-1.5 text-sm font-medium text-text-subtle">
+							<svg class="w-[18px] h-[18px] fill-rating" viewBox="0 0 24 24" aria-hidden="true">
+								<path
+									d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"
+								></path>
+							</svg>
+							4.9/5 rated by HTET aspirants
+						</span>
+					</div>
+				</div>
+			</section>
+
+			<section class="py-16 bg-bg-subtle">
+				<div class="max-w-[680px] mx-auto px-5 text-center">
+					<h2 class="text-[28px] font-extrabold mb-2 tracking-tight">Sound familiar?</h2>
+					<p class="text-text-subtle mb-10">Every HTET aspirant hits the same three walls.</p>
+					<div class="flex flex-col gap-3 text-left">
+						{
+							painPoints.map((point) => (
+								<div class="flex items-center gap-4 bg-white border border-border-subtle rounded-2xl px-5 py-4">
+									<span
+										class="flex-none w-9 h-9 rounded-full bg-bg-subtle text-text-muted flex items-center justify-center"
+										set:html={ICONS.issue}
+									/>
+									<span class="text-[15px] text-text-normal font-medium">{point}</span>
+								</div>
+							))
+						}
+					</div>
+					<p class="mt-10 text-lg font-semibold">
+						<span class="text-brand">Clearcutoff</span> fixes all three — in one place.
+					</p>
+				</div>
+			</section>
+
+			<section class="py-16">
+				<div class="max-w-[1040px] mx-auto px-5">
+					<h2 class="text-[28px] font-extrabold text-center mb-2 tracking-tight">How it works</h2>
+					<p class="text-text-subtle text-center mb-12">Three steps from scattered prep to exam-ready.</p>
+					<div class="relative">
+						<div
+							class="hidden md:block absolute top-7 left-[16.67%] right-[16.67%] h-px bg-border-subtle"
+							aria-hidden="true"
+						>
+						</div>
+						<div class="relative grid grid-cols-1 md:grid-cols-3 gap-10">
+							{
+								steps.map((step) => (
+									<div class="flex flex-col items-center text-center">
+										<div class="relative z-10 w-14 h-14 rounded-full bg-brand text-white flex items-center justify-center text-xl font-bold mb-4 shadow-lg ring-8 ring-white">
+											{step.n}
+										</div>
+										<h3 class="font-bold text-lg mb-2">{step.title}</h3>
+										<p class="text-text-subtle text-sm max-w-[240px]">{step.desc}</p>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section class="py-10">
+				<div class="max-w-[1040px] mx-auto px-5">
+					<div
+						class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-px bg-border-subtle border border-border-subtle rounded-2xl overflow-hidden"
+					>
+						{
+							facts.map((fact) => (
+								<div class="flex items-start gap-3 bg-white py-[22px] px-5">
+									<span
+										class="flex-none w-9 h-9 rounded-[10px] bg-primary-subtle text-brand flex items-center justify-center"
+										set:html={ICONS[fact.icon]}
+									/>
+									<span class="flex flex-col gap-1">
+										<span class="text-xs uppercase tracking-wide text-text-muted">{fact.label}</span>
+										<span class="text-[15px] font-semibold text-text-normal">{fact.value}</span>
+									</span>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</section>
+
+			<section class="pt-6 pb-[72px]">
+				<div class="max-w-[1040px] mx-auto px-5">
+					<div
+						class="relative text-center max-w-[440px] mx-auto bg-linear-to-b from-white to-bg-subtle border border-border-subtle rounded-[20px] px-8 py-10 shadow-md"
+					>
+						<span
+							class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-success text-white text-[13px] font-bold px-[18px] py-1.5 rounded-full shadow-sm"
+						>
+							Save ₹401
+						</span>
+						<div class="flex justify-center items-baseline gap-3 mt-2">
+							<span class="text-[44px] font-extrabold text-text-normal">₹499</span>
+							<span class="text-xl text-text-muted line-through">₹900</span>
+						</div>
+						<p class="text-text-subtle mt-3 mb-6 text-sm">
+							One-time price for full access to HTET prep on Clearcutoff.
+						</p>
+						<ul class="list-none m-0 mb-7 p-0 flex flex-col gap-2.5 text-left">
+							{
+								priceIncludes.map((item) => (
+									<li class="flex items-center gap-2.5 text-sm text-text-subtle">
+										<span
+											class="flex-none w-[18px] h-[18px] rounded-full bg-success flex items-center justify-center"
+											set:html={ICONS.check}
+										/>
+										{item}
+									</li>
+								))
+							}
+						</ul>
+						<a class={`${btnPrimary} ${btnLg} block text-center`} href={examUrl}>Get started</a>
+					</div>
+				</div>
+			</section>
+
+			<section class="py-6 pb-[72px]">
+				<div class="max-w-[1040px] mx-auto px-5">
+					<h2 class="text-[28px] font-extrabold text-center mb-9 tracking-tight">Frequently asked questions</h2>
+					<div class="max-w-[720px] mx-auto">
+						{
+							faqs.map((item) => (
+								<details class="group border-b border-border-subtle py-[18px]">
+									<summary class="flex items-center justify-between gap-4 font-semibold cursor-pointer text-base list-none [&::-webkit-details-marker]:hidden">
+										<span>{item.q}</span>
+										<svg
+											class="flex-none w-5 h-5 text-text-muted transition-transform duration-200 group-open:rotate-90"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											aria-hidden="true"
+										>
+											<path d="M9 6l6 6-6 6"></path>
+										</svg>
+									</summary>
+									<p class="mt-3.5 text-text-subtle text-[15px]">{item.a}</p>
+								</details>
+							))
+						}
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<footer class="pt-16 pb-24 text-center bg-linear-to-b from-white to-primary-subtle">
+			<div class="max-w-[1040px] mx-auto px-5">
+				<h2 class="text-[26px] font-extrabold mb-2">Ready to start your HTET prep?</h2>
+				<p class="text-text-subtle mb-6">Full access for ₹499, one time.</p>
+				<a class={`${btnPrimary} ${btnLg}`} href={examUrl}>Start preparing for HTET</a>
+			</div>
+		</footer>
+
+		<div
+			class="flex items-center justify-between gap-3 px-4 py-3 bg-white border-t border-border-subtle shadow-[0_-8px_24px_rgba(25,40,57,0.08)] fixed bottom-0 left-0 right-0 z-20 sm:hidden"
+		>
+			<div class="flex items-baseline gap-1.5">
+				<span class="text-xl font-extrabold text-text-normal">₹499</span>
+				<span class="text-[13px] text-text-muted line-through">₹900</span>
+			</div>
+			<a class={btnPrimary} href={examUrl}>Get started</a>
+		</div>
+	</body>
+</html>

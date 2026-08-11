@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+/*
+ * Brand tokens, mirrored from the main Turborepo's design tokens
+ * (apps/landing/project-style-guide.md) so this standalone repo stays
+ * visually on-brand without depending on that package. Tailwind v4 turns
+ * every --color-* var here into utilities automatically, e.g.
+ * --color-brand generates bg-brand / text-brand / border-brand / ring-brand.
+ */
+@theme {
+	--color-brand: #0083ff;
+	--color-brand-dark: #0053a2;
+	--color-primary-soft: #dbeafe;
+	--color-primary-subtle: #e8f2fb;
+
+	--color-success: #00a251;
+	--color-success-highlight: #008743;
+	--color-success-soft: #e7f6e5;
+
+	--color-text-normal: #192839;
+	--color-text-subtle: #40566d;
+	--color-text-muted: #768ea7;
+	--color-text-disabled: #cccccc;
+
+	--color-bg-subtle: #f1f5fa;
+	--color-border-subtle: #cbd5e2;
+
+	/* Not in the Turborepo's token set — this repo's own addition, for the
+	   star-rating accent used on marketing pages. */
+	--color-rating: #f5a623;
+}
