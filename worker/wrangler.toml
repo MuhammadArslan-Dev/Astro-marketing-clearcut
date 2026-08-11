@@ -10,6 +10,4 @@ routes = [
 ]
 
 [vars]
-# Replace with the real Cloudflare Pages deployment URL once that project is
-# created (see "Set up Cloudflare Pages project" in PROJECT_PLAN.md).
-PAGES_ORIGIN = "https://cc-marketing.pages.dev"
+PAGES_ORIGIN = "https://astro-marketing-clearcut.pages.dev"

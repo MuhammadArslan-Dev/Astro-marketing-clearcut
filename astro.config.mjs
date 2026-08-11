@@ -17,6 +17,16 @@ export default defineConfig({
   // Must match whatever the Worker/proxy expects, or you get a redirect loop.
   trailingSlash: 'never',
 
+  // Emit dist/htet.html instead of dist/htet/index.html. Cloudflare Pages'
+  // static server 308-redirects a directory-style path ("/htet") to add a
+  // trailing slash ("/htet/") — and since that Location header passes back
+  // through the Worker unmodified, it reaches the client as a relative
+  // redirect that drops the /go prefix entirely. Flat files sidestep the
+  // redirect (and the bug) rather than trying to patch it downstream.
+  build: {
+    format: 'file',
+  },
+
   vite: {
     plugins: [tailwindcss()],
   },
