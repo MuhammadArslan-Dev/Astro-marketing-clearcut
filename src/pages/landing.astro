@@ -426,36 +426,44 @@ const btnOutline =
       </section>
 
       <!-- ============ Trusted-by logo marquee ============ -->
+      <!-- The scrolling track deliberately breaks out of the 1100px content
+           container and runs full page width (edge-to-edge) — confirmed
+           against the live production page, where the marquee track's
+           overflow-hidden wrapper spans the full viewport width while the
+           heading/CTA text around it stay inside the normal 1100px column.
+           Only the heading and CTA line are wrapped in the max-w container. -->
       <section class="py-4">
-        <div class="max-w-[1100px] mx-auto px-3 flex flex-col gap-6">
+        <div class="max-w-[1100px] mx-auto px-3">
           <h2 class="heading-large font-semibold text-center text-text-normal">
             Trusted by <span class="text-brand">10,000+</span> students to pass TET
             exams across India
           </h2>
-          <div class="overflow-hidden">
-            <div class="flex items-center gap-14 w-max animate-marquee">
-              {
-                [...trustedLogos, ...trustedLogos].map((exam) => (
-                  <div class="flex flex-col items-center gap-2 flex-shrink-0 w-[88px]">
-                    <img
-                      src={exam.logo}
-                      alt={`${exam.name} logo`}
-                      width="64"
-                      height="64"
-                      class="grayscale opacity-70"
-                      loading="lazy"
-                    />
-                    <span class="body-large font-semibold text-text-normal text-center">
-                      {exam.name}
-                    </span>
-                    <span class="body-xsmall text-text-muted text-center">
-                      {exam.state}
-                    </span>
-                  </div>
-                ))
-              }
-            </div>
+        </div>
+        <div class="overflow-hidden my-6">
+          <div class="flex items-center gap-14 w-max animate-marquee">
+            {
+              [...trustedLogos, ...trustedLogos].map((exam) => (
+                <div class="flex flex-col items-center gap-2 flex-shrink-0 w-[88px]">
+                  <img
+                    src={exam.logo}
+                    alt={`${exam.name} logo`}
+                    width="64"
+                    height="64"
+                    class="grayscale opacity-70"
+                    loading="lazy"
+                  />
+                  <span class="body-large font-semibold text-text-normal text-center">
+                    {exam.name}
+                  </span>
+                  <span class="body-xsmall text-text-muted text-center">
+                    {exam.state}
+                  </span>
+                </div>
+              ))
+            }
           </div>
+        </div>
+        <div class="max-w-[1100px] mx-auto px-3">
           <div
             class="flex flex-col md:flex-row items-center justify-center gap-3 text-center"
           >
