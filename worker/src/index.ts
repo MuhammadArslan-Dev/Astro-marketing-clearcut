@@ -38,11 +38,25 @@ export default {
 		const upstreamHeaders = new Headers(request.headers);
 		upstreamHeaders.delete("host");
 
+		// Every request here is a live subrequest to the Pages origin — without
+		// this, that round-trip repeats for every visitor on every request
+		// (measured ~2x the latency of hitting Pages directly). `cacheEverything`
+		// makes Cloudflare cache this subrequest's response at the edge for
+		// `cacheTtl`, so only the first visitor in a region pays the extra hop.
+		// Hashed /_astro/* assets are cached for a year (safe: the filename
+		// changes whenever the content does, see public/_headers); HTML pages
+		// get a short TTL so deploys still show up quickly.
+		const isHashedAsset = upstreamPath.startsWith("/_astro/");
+
 		const upstreamResponse = await fetch(upstreamUrl.toString(), {
 			method: request.method,
 			headers: upstreamHeaders,
 			body: request.method === "GET" || request.method === "HEAD" ? undefined : request.body,
 			redirect: "manual",
+			cf: {
+				cacheEverything: true,
+				cacheTtl: isHashedAsset ? 31536000 : 300,
+			},
 		});
 
 		const response = new Response(upstreamResponse.body, upstreamResponse);

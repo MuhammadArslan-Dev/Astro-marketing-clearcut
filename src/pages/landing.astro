@@ -276,6 +276,13 @@ const ICONS: Record<string, string> = {
     '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   checkSmall:
     '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  // Plain outlined checkmark (no circle/fill) — used only in the
+  // comparison table, which uses a different check style than the
+  // filled-circle CheckIconGreen badge used in pricing checklists.
+  checkOutline:
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+  fireFilled:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.176 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133.998a5.27 5.27 0 01-.31-1.825 5.266 5.266 0 011.539-3.716 3.75 3.75 0 013.951 5.715z" clip-rule="evenodd"></path></svg>',
   cross:
     '<svg class="h-5 w-5 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>',
   arrow:
@@ -283,7 +290,7 @@ const ICONS: Record<string, string> = {
   chevron:
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>',
   phone:
-    '<svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M6.82884 7.82624C8.18829 11.5348 9.59569 13.0145 13.1761 14.5906L11.6244 16.7698C7.51303 14.8014 5.46522 11.4834 4.50077 8.89404L6.82884 7.82624Z" fill="white"/><path d="M7.96905 2.70813C8.69599 2.70529 9.24871 3.31017 9.19916 3.9951C9.12118 5.07296 9.2042 5.85062 9.42775 6.81455C9.55055 7.34404 9.27274 7.88182 8.83127 8.2282C8.23623 8.69507 7.78163 9.28996 7.42033 9.80206C6.91954 10.5119 5.19615 10.4609 4.81502 9.6876C4.03175 8.09844 3.50092 5.17066 4.64473 3.1926C4.8244 2.88189 5.18615 2.71901 5.56101 2.71755L7.96905 2.70813Z" fill="white"/><path d="M19.0035 14.4678C19.0939 13.7866 18.5246 13.1956 17.7986 13.1597C16.6562 13.1032 15.8487 12.9318 14.8624 12.6063C14.3205 12.4275 13.7218 12.6233 13.3046 12.9955C12.7423 13.4973 12.0623 13.8519 11.4805 14.1291C10.6742 14.5132 10.5205 16.1352 11.2875 16.5855C12.8638 17.511 15.8776 18.3607 18.0945 17.5262C18.4427 17.3951 18.6574 17.0756 18.704 16.7243L19.0035 14.4678Z" fill="white"/></svg>',
+    '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6.82884 7.82624C8.18829 11.5348 9.59569 13.0145 13.1761 14.5906L11.6244 16.7698C7.51303 14.8014 5.46522 11.4834 4.50077 8.89404L6.82884 7.82624Z" fill="white"/><path d="M7.96905 2.70813C8.69599 2.70529 9.24871 3.31017 9.19916 3.9951C9.12118 5.07296 9.2042 5.85062 9.42775 6.81455C9.55055 7.34404 9.27274 7.88182 8.83127 8.2282C8.23623 8.69507 7.78163 9.28996 7.42033 9.80206C6.91954 10.5119 5.19615 10.4609 4.81502 9.6876C4.03175 8.09844 3.50092 5.17066 4.64473 3.1926C4.8244 2.88189 5.18615 2.71901 5.56101 2.71755L7.96905 2.70813Z" fill="white"/><path d="M19.0035 14.4678C19.0939 13.7866 18.5246 13.1956 17.7986 13.1597C16.6562 13.1032 15.8487 12.9318 14.8624 12.6063C14.3205 12.4275 13.7218 12.6233 13.3046 12.9955C12.7423 13.4973 12.0623 13.8519 11.4805 14.1291C10.6742 14.5132 10.5205 16.1352 11.2875 16.5855C12.8638 17.511 15.8776 18.3607 18.0945 17.5262C18.4427 17.3951 18.6574 17.0756 18.704 16.7243L19.0035 14.4678Z" fill="white"/></svg>',
   whatsapp:
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.017 2C6.492 2 2 6.477 2 11.985c0 1.98.579 3.827 1.579 5.383L2 22l4.756-1.554a10.03 10.03 0 0 0 5.261 1.485h.004c5.524 0 10.017-4.477 10.017-9.985C22 6.477 17.524 2 12.017 2zm0 18.29h-.003a8.29 8.29 0 0 1-4.221-1.153l-.303-.18-3.14 1.026 1.05-3.06-.198-.315a8.24 8.24 0 0 1-1.276-4.42c0-4.567 3.734-8.28 8.325-8.28 4.591 0 8.325 3.713 8.325 8.28 0 4.567-3.734 8.28-8.325 8.28z"/></svg>',
   facebook:
@@ -291,7 +298,7 @@ const ICONS: Record<string, string> = {
   linkedin:
     '<svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M19.959 11.693V19.072H15.681V12.187C15.681 10.457 15.062 9.277 13.514 9.277C12.332 9.277 11.628 10.073 11.319 10.842C11.206 11.117 11.177 11.5 11.177 11.885V19.072H6.897C6.897 19.072 6.955 7.412 6.897 6.203H11.177V8.027L11.149 8.069H11.177V8.027C11.745 7.152 12.76 5.901 15.033 5.901C17.848 5.901 19.959 7.741 19.959 11.693ZM2.421 0C0.958 0 0 0.96 0 2.223C0 3.458 0.93 4.447 2.365 4.447H2.393C3.886 4.447 4.813 3.458 4.813 2.223C4.787 0.96 3.887 0 2.422 0H2.421ZM0.254 19.072H4.532V6.203H0.254V19.072Z"/></svg>',
   instagram:
-    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>',
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>',
 };
 
 const btnPrimary =
@@ -331,8 +338,8 @@ const btnOutline =
           <img
             src={`${base}/main-logo.svg`}
             alt="Clear Cutoff"
-            width="150"
-            height="32"
+            width="190"
+            height="37"
           />
         </a>
         <div id="nav-menu" class="relative hidden md:flex items-center gap-2">
@@ -367,7 +374,7 @@ const btnOutline =
 
     <main>
       <!-- ============ Hero ============ -->
-      <section class="py-8 md:py-16 px-3">
+      <section class="py-4 md:py-16 px-3">
         <div
           class="max-w-[1100px] mx-auto grid md:grid-cols-11 gap-10 md:gap-12 items-center"
         >
@@ -444,12 +451,12 @@ const btnOutline =
           <div class="flex items-center gap-14 w-max animate-marquee">
             {
               [...trustedLogos, ...trustedLogos].map((exam) => (
-                <div class="flex flex-col items-center gap-2 flex-shrink-0 w-[88px]">
+                <div class="flex flex-col items-center gap-4 flex-shrink-0 w-[88px]">
                   <img
                     src={exam.logo}
                     alt={`${exam.name} logo`}
-                    width="64"
-                    height="64"
+                    width="88"
+                    height="88"
                     class="grayscale opacity-70"
                     loading="lazy"
                   />
@@ -468,12 +475,12 @@ const btnOutline =
           <div
             class="flex flex-col md:flex-row items-center justify-center gap-3 text-center"
           >
-            <p class="body-medium text-text-subtle">
+            <p class="heading-small font-semibold text-text-subtle">
               Preparing for other exams? Explore all of Clear Cutoff's <span
                 class="text-brand font-semibold">Teaching Exams</span
               >!
             </p>
-            <a class={`${btnOutline} px-5 py-2 text-sm`} href={coursesUrl}
+            <a class={`${btnOutline} px-3 py-1 text-sm`} href={coursesUrl}
               >See all courses and test series!</a
             >
           </div>
@@ -482,20 +489,20 @@ const btnOutline =
 
       <!-- ============ Features ============ -->
       <section id="features-section" class="bg-[#f5f7fb] scroll-mt-16">
-        <div class="max-w-[1120px] mx-auto px-3 py-10 md:py-16">
+        <div class="max-w-[1120px] mx-auto px-3 py-4 md:py-8">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <p
-                class="text-brand body-medium font-semibold mb-2 text-center md:text-left"
+                class="text-brand body-medium font-semibold mb-1 text-center md:text-left"
               >
                 Exam prep anytime, anywhere
               </p>
               <h2
-                class="display-small font-semibold text-center md:text-left mb-3"
+                class="display-medium font-semibold text-center md:text-left mb-3"
               >
                 <span class="text-brand">Everything you need</span> to pass the exam
               </h2>
-              <p class="body-large text-text-subtle text-center md:text-left">
+              <p class="heading-small font-normal text-text-subtle text-center md:text-left">
                 Videos, notes and tests for every subject to prepare, practise
                 and succeed — all in one place
               </p>
@@ -523,10 +530,10 @@ const btnOutline =
 
       <!-- ============ How it works ============ -->
       <section class="bg-white">
-        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+        <div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
           <div class="flex flex-col gap-12">
             <div class="text-center">
-              <p class="text-brand body-medium font-semibold mb-2">
+              <p class="text-brand body-medium font-semibold mb-1">
                 How it works
               </p>
               <h2 class="display-medium font-semibold mb-3">
@@ -534,7 +541,7 @@ const btnOutline =
                   >Exam</span
                 >
               </h2>
-              <p class="body-large text-text-subtle">
+              <p class="heading-small font-normal text-text-subtle">
                 Follow these 3 simple steps to succeed in your exam
               </p>
             </div>
@@ -555,7 +562,7 @@ const btnOutline =
                       </div>
                       <div class="flex flex-col gap-5">
                         <div>
-                          <h3 class="heading-xlarge font-semibold mb-2">
+                          <h3 class="heading-xlarge font-semibold mb-5">
                             {step.title}
                           </h3>
                           <p class="heading-medium font-semibold text-text-normal">
@@ -566,7 +573,7 @@ const btnOutline =
                         <button
                           type="button"
                           data-open-auth
-                          class={`${btnOutline} w-[220px] justify-center px-5 py-2 text-sm`}
+                          class={`${btnOutline} w-[250px] justify-center px-6 py-2 text-base min-h-[44px]`}
                         >
                           {step.btn}
                           <span set:html={ICONS.arrow.replace(/fill="white"/, 'fill="#005cb8"')} />
@@ -597,10 +604,10 @@ const btnOutline =
 
       <!-- ============ Comparison ============ -->
       <section id="comparison-section" class="bg-[#f5f7fb]">
-        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+        <div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
           <div class="flex flex-col gap-12">
             <div class="text-center">
-              <p class="text-brand body-medium font-semibold mb-2">
+              <p class="text-brand body-medium font-semibold mb-1">
                 Clear Cutoff vs coaching centres
               </p>
               <h2 class="display-medium font-semibold mb-3">
@@ -608,7 +615,7 @@ const btnOutline =
                   class="text-brand">unlimited</span
                 > practice!
               </h2>
-              <p class="body-large text-text-subtle">
+              <p class="heading-small font-normal text-text-subtle">
                 Save money, study anytime and prepare fully without going to
                 coaching!
               </p>
@@ -632,7 +639,7 @@ const btnOutline =
                               class={`flex items-center justify-center gap-3 flex-row-reverse min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
                             >
                               {row.labelIcon && (
-                                <span set:html={ICONS.checkSmall} />
+                                <span set:html={ICONS.checkOutline} />
                               )}
                               <span class="heading-small font-semibold">
                                 {row.label}
@@ -668,8 +675,8 @@ const btnOutline =
                         <img
                           src={`${base}/main-logo.svg`}
                           alt="Clear Cutoff"
-                          width="150"
-                          height="36"
+                          width="200"
+                          height="48"
                         />
                       </div>
                       <div class="bg-white py-2 rounded-r-xl">
@@ -678,7 +685,7 @@ const btnOutline =
                             <div
                               class={`flex items-center gap-3 min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
                             >
-                              <span set:html={ICONS.check} />
+                              <span set:html={ICONS.checkOutline} />
                               <span class="heading-small" set:html={row.app} />
                             </div>
                           ))
@@ -688,9 +695,9 @@ const btnOutline =
                   </div>
                 </div>
               </div>
-              <div class="flex items-center justify-center gap-1.5">
-                <span set:html={ICONS.fire} />
-                <p class="heading-small text-text-muted">
+              <div class="flex items-center justify-center gap-1 text-[#566c82]">
+                <span set:html={ICONS.fireFilled} />
+                <p class="heading-small text-[#566c82]">
                   Comparison based on common coaching-centre practices
                 </p>
               </div>
@@ -701,11 +708,11 @@ const btnOutline =
 
       <!-- ============ Pricing ============ -->
       <section id="pricing-section" class="bg-white scroll-mt-16">
-        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+        <div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
           <div class="flex flex-col gap-10">
             <div class="space-y-4">
               <div class="text-center">
-                <p class="text-brand body-medium font-semibold mb-2">
+                <p class="text-brand body-medium font-semibold mb-1">
                   Simple. Transparent. Affordable.
                 </p>
                 <h2 class="display-small md:display-medium font-semibold mb-3">
@@ -713,7 +720,7 @@ const btnOutline =
                     class="text-brand">everything</span
                   > included!
                 </h2>
-                <p class="body-large text-text-subtle">
+                <p class="heading-small font-normal text-text-subtle">
                   Pay once. 6 months of access. Everything you need to pass on
                   the first attempt.
                 </p>
@@ -721,13 +728,13 @@ const btnOutline =
               <button
                 type="button"
                 data-open-auth
-                class="flex flex-col md:flex-row items-center justify-center gap-5 py-4 w-full cursor-pointer"
+                class="flex flex-col md:flex-row items-center justify-center gap-5 py-6 w-full cursor-pointer"
               >
                 <img
                   src={`${base}/guarantee-badge.webp`}
                   alt="Success assurance guarantee badge"
-                  width="120"
-                  height="96"
+                  width="150"
+                  height="120"
                 />
                 <div class="text-center md:text-left">
                   <p class="heading-medium font-semibold text-text-normal">
@@ -745,14 +752,14 @@ const btnOutline =
             >
               {
                 pricingPlans.map((plan) => (
-                  <div class="w-full max-w-[390px] mx-auto rounded-xl border border-border-subtle bg-white p-6">
+                  <div class="w-full max-w-[390px] mx-auto rounded-[6px] border border-border-subtle bg-white p-2">
                     <h3 class="heading-xlarge font-semibold text-center mb-3">
                       {plan.exam} exam
                     </h3>
                     <hr class="border-t border-[#CDD7E1] my-0" />
-                    <div class="bg-brand/[0.09] rounded-lg h-[72px] flex items-center justify-center gap-4 my-3">
+                    <div class="bg-[#006bd1]/[0.09] rounded-lg h-[72px] flex items-center justify-center gap-5 my-3">
                       <span class="heading-2xlarge font-semibold text-text-normal">
-                        <span class="heading-xlarge font-semibold">₹</span>99
+                        <span class="heading-xlarge font-semibold mr-1">₹</span>99
                       </span>
                       <span class="body-large text-text-subtle">
                         6-month subscription
@@ -789,7 +796,7 @@ const btnOutline =
                 ))
               }
             </div>
-            <div class="flex flex-col gap-3 max-w-lg mx-auto text-center">
+            <div class="flex flex-col gap-8 max-w-lg mx-auto text-center">
               <p class="heading-large font-semibold">
                 <span class="text-brand">10,000+</span> students used this to pass
                 the TET exam.
@@ -859,11 +866,11 @@ const btnOutline =
             <div class="max-w-3xl mx-auto w-full">
               <div
                 id="faq-tabs"
-                class="relative flex bg-brand-dark py-1 overflow-x-auto px-1 md:rounded-full"
+                class="relative flex bg-brand-dark py-1 overflow-x-auto px-1 -mx-3 md:mx-0 md:rounded-full"
               >
                 <div
                   id="faq-tab-indicator"
-                  class="absolute bg-white rounded-full shadow-sm transition-all duration-300 ease-out"
+                  class="absolute bg-white rounded-full shadow-sm transition-[left,width,top,height] duration-300 ease-[cubic-bezier(0.33,1.1,0.68,1)]"
                 >
                 </div>
                 {
@@ -888,7 +895,7 @@ const btnOutline =
                 faqFilters.map((f, fi) =>
                   faqs[f.key].map((item, qi) => (
                     <div
-                      class="faq-item rounded-xl border-2 px-5 py-4 cursor-pointer bg-white border-gray-200"
+                      class="faq-item rounded-xl border-2 px-5 py-4 cursor-pointer bg-white border-gray-200 transition-colors duration-300"
                       data-tab-group={f.key}
                       data-open={fi === 0 && qi === 0 ? "true" : "false"}
                       style={fi === 0 ? "" : "display:none"}
@@ -900,12 +907,12 @@ const btnOutline =
                         <span class="heading-small font-semibold">
                           {item.q}
                         </span>
-                        <span class="faq-chevron flex-none w-5 h-5 text-text-normal transition-transform duration-300">
+                        <span class="faq-chevron flex-none w-6 h-6 text-text-normal transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
                           <span set:html={ICONS.chevron} />
                         </span>
                       </button>
                       <div
-                        class="faq-answer body-medium text-text-subtle pt-2"
+                        class="faq-answer body-medium text-text-normal pt-2"
                         set:html={item.a}
                       />
                     </div>
@@ -939,13 +946,13 @@ const btnOutline =
     <!-- ============ Footer ============ -->
     <footer>
       <div
-        class="w-full py-6 flex flex-col justify-center items-center gap-3"
+        class="w-full py-3 min-h-[88px] flex flex-col justify-center items-center gap-2"
         style="background-color:#006BD1"
       >
         <div class="flex gap-6 md:gap-14">
           <a
             href="tel:7210708599"
-            class="flex items-center gap-2 text-white body-large font-medium"
+            class="flex items-center gap-2 text-white body-large"
           >
             <span set:html={ICONS.phone} />
             <span class="md:hidden">Phone</span>
@@ -955,7 +962,7 @@ const btnOutline =
             href="https://wa.me/917210708599"
             target="_blank"
             rel="noopener"
-            class="flex items-center gap-2 text-white body-large font-medium"
+            class="flex items-center gap-2 text-white body-large"
           >
             <span set:html={ICONS.whatsapp} />
             WhatsApp
@@ -1021,26 +1028,26 @@ const btnOutline =
       <div class="absolute inset-0 flex md:items-center md:justify-center overflow-y-auto">
         <div
           id="auth-panel"
-          class="bg-white w-full min-h-full md:min-h-0 md:max-w-[400px] md:rounded-lg md:shadow-xl md:my-8 flex flex-col transition-all duration-300 ease-in-out translate-x-full opacity-0 md:translate-x-0 md:-translate-y-5"
+          class="bg-white w-full min-h-full md:min-h-0 md:max-w-[400px] md:rounded-[10px] md:shadow-xl md:my-8 flex flex-col transition-all duration-300 ease-in-out translate-x-full opacity-0 md:translate-x-0 md:-translate-y-5"
         >
-          <div class="flex flex-col items-center gap-5 px-6 py-8 md:px-8">
+          <div class="flex flex-col items-center gap-5 px-7 pt-7 pb-10 md:px-10 md:pt-3 md:pb-6">
             <img src={`${base}/main-logo.svg`} alt="Clear Cutoff" width="140" height="30" />
             <div class="text-center">
-              <h2 class="heading-large font-semibold text-text-normal">Start your exam preparation</h2>
+              <h2 class="heading-medium font-semibold text-text-normal">Start your exam preparation</h2>
               <p class="body-medium text-text-subtle mt-1">Videos • Notes • PYQs</p>
             </div>
 
             <div class="w-full">
               <div class="flex items-center gap-2 mb-2">
                 <span set:html={ICONS.indiaFlag} />
-                <span class="body-medium font-semibold text-text-subtle">Mobile or WhatsApp Number</span>
+                <span class="body-small font-semibold text-text-subtle">Mobile or WhatsApp Number</span>
               </div>
               <div
                 id="auth-input-wrap"
-                class="flex items-center gap-2 rounded-lg border-2 px-4 py-3 transition-colors"
+                class="flex items-center gap-2 border-b-2 px-3 py-1.5 transition-colors"
                 style="border-color:color-mix(in srgb, #6c849d 18%, transparent); background-color:color-mix(in srgb, #6c849d 12%, transparent);"
               >
-                <span class="font-bold text-text-normal">+91 -</span>
+                <span class="font-semibold text-text-normal">+91 -</span>
                 <input
                   id="auth-phone-input"
                   type="tel"
@@ -1060,24 +1067,24 @@ const btnOutline =
               type="button"
               id="auth-submit"
               disabled
-              class="w-full rounded-full bg-brand text-white font-semibold py-3 text-base disabled:opacity-50 disabled:pointer-events-none transition hover:bg-[#006fdb]"
+              class="w-full min-h-[44px] rounded-full bg-brand text-white font-semibold py-3 text-base disabled:opacity-50 disabled:pointer-events-none transition hover:bg-[#006fdb]"
             >
               <span id="auth-submit-label">Start FREE Preparation</span>
             </button>
 
-            <span class="px-3 py-1 rounded-full bg-brand/10 text-[#006bd1] body-medium border-2 border-brand font-semibold">
+            <span class="px-3 py-0.5 rounded-full bg-brand/[0.09] text-[#006bd1] body-medium border border-brand font-semibold">
               3-day FREE Trial
             </span>
             <div class="flex items-center gap-1.5">
               <span set:html={ICONS.fire} />
-              <span class="body-small text-text-muted">No card or payment required</span>
+              <span class="body-small text-[#566c82]">No card or payment required</span>
             </div>
 
-            <p class="body-medium text-text-normal text-center block md:hidden">
+            <p class="body-medium text-text-muted text-center block md:hidden">
               Trusted by <span class="text-brand font-semibold">10,000+</span> students to clear TET exams across India
             </p>
 
-            <p class="body-small text-text-muted text-center">
+            <p class="body-medium text-text-muted text-center">
               By Signing Up, I agree to <a href={`${homeUrl}/terms-and-conditions`} class="text-brand">Terms &amp; Conditions</a> and
               <a href={`${homeUrl}/privacy-policy`} class="text-brand">Privacy Policy</a>.
             </p>
@@ -1223,6 +1230,60 @@ const btnOutline =
         tabIndicator.style.height = `${rect.height}px`;
       }
 
+      // Sets an item's open/closed state. Animates the answer's height from
+      // 0 to its measured scrollHeight (and back) plus an opacity fade —
+      // approximating the source's framer-motion spring (stiffness 120,
+      // damping 18 for height, 0.2s fade for opacity) since CSS can't
+      // transition to/from `height: auto` directly. Uses a forced
+      // synchronous reflow (`void answer.offsetHeight`) rather than
+      // requestAnimationFrame to kick off the transition — rAF was found
+      // unreliable earlier in this project (see auth modal below).
+      // `animate: false` is used for instant sets (initial load, tab
+      // switches) where no visible transition should play.
+      function setFaqItemState(
+        item: HTMLElement,
+        open: boolean,
+        animate: boolean,
+      ) {
+        item.setAttribute("data-open", open ? "true" : "false");
+        item.classList.toggle("border-brand", open);
+        item.classList.toggle("border-gray-200", !open);
+        const answer = item.querySelector<HTMLElement>(".faq-answer");
+        const chevron = item.querySelector<HTMLElement>(".faq-chevron");
+        if (chevron) chevron.style.transform = open ? "rotate(180deg)" : "";
+        if (!answer) return;
+
+        if (!animate) {
+          answer.style.transition = "none";
+          answer.style.height = open ? "auto" : "0px";
+          answer.style.opacity = open ? "1" : "0";
+          void answer.offsetHeight;
+          answer.style.transition = "";
+          return;
+        }
+
+        if (open) {
+          const target = answer.scrollHeight;
+          answer.style.height = "0px";
+          answer.style.opacity = "0";
+          void answer.offsetHeight;
+          answer.style.height = `${target}px`;
+          answer.style.opacity = "1";
+          const onEnd = (e: TransitionEvent) => {
+            if (e.propertyName !== "height") return;
+            answer.style.height = "auto";
+            answer.removeEventListener("transitionend", onEnd);
+          };
+          answer.addEventListener("transitionend", onEnd);
+        } else {
+          const current = answer.getBoundingClientRect().height;
+          answer.style.height = `${current}px`;
+          void answer.offsetHeight;
+          answer.style.height = "0px";
+          answer.style.opacity = "0";
+        }
+      }
+
       function setActiveTab(key: string) {
         tabs.forEach((tab) => {
           const isActive = tab.getAttribute("data-tab") === key;
@@ -1233,39 +1294,13 @@ const btnOutline =
         });
         faqItems.forEach((item) => {
           const matches = item.getAttribute("data-tab-group") === key;
-          (item as HTMLElement).style.display = matches ? "" : "none";
-          item.setAttribute("data-open", "false");
-          item.classList.remove("border-brand");
-          item.classList.add("border-gray-200");
-          const answer = item.querySelector<HTMLElement>(".faq-answer");
-          const chevron = item.querySelector<HTMLElement>(".faq-chevron");
-          if (answer) answer.style.display = "none";
-          if (chevron) chevron.style.transform = "";
+          item.style.display = matches ? "" : "none";
+          setFaqItemState(item, false, false);
         });
         const firstItem = document.querySelector<HTMLElement>(
           `.faq-item[data-tab-group="${key}"]`,
         );
-        if (firstItem) openFaqItem(firstItem);
-      }
-
-      function openFaqItem(item: HTMLElement) {
-        item.setAttribute("data-open", "true");
-        item.classList.add("border-brand");
-        item.classList.remove("border-gray-200");
-        const answer = item.querySelector<HTMLElement>(".faq-answer");
-        const chevron = item.querySelector<HTMLElement>(".faq-chevron");
-        if (answer) answer.style.display = "block";
-        if (chevron) chevron.style.transform = "rotate(180deg)";
-      }
-
-      function closeFaqItem(item: HTMLElement) {
-        item.setAttribute("data-open", "false");
-        item.classList.remove("border-brand");
-        item.classList.add("border-gray-200");
-        const answer = item.querySelector<HTMLElement>(".faq-answer");
-        const chevron = item.querySelector<HTMLElement>(".faq-chevron");
-        if (answer) answer.style.display = "none";
-        if (chevron) chevron.style.transform = "";
+        if (firstItem) setFaqItemState(firstItem, true, false);
       }
 
       tabs.forEach((tab) => {
@@ -1285,25 +1320,21 @@ const btnOutline =
               `.faq-item[data-tab-group="${group}"]`,
             )
             .forEach((el) => {
-              if (el !== item) closeFaqItem(el);
+              if (el !== item && el.getAttribute("data-open") === "true") {
+                setFaqItemState(el, false, true);
+              }
             });
-          if (isOpen) closeFaqItem(item);
-          else openFaqItem(item);
+          setFaqItemState(item, !isOpen, true);
         });
       });
 
       // Initial state: first tab active, first question open, answer visible.
       if (tabs.length) {
-        requestAnimationFrame(() => positionTabIndicator(tabs[0]));
+        positionTabIndicator(tabs[0]);
         const firstItem = document.querySelector<HTMLElement>(
           '.faq-item[data-tab-group="refund"]',
         );
-        if (firstItem) {
-          const answer = firstItem.querySelector<HTMLElement>(".faq-answer");
-          const chevron = firstItem.querySelector<HTMLElement>(".faq-chevron");
-          if (answer) answer.style.display = "block";
-          if (chevron) chevron.style.transform = "rotate(180deg)";
-        }
+        if (firstItem) setFaqItemState(firstItem, true, false);
       }
       window.addEventListener("resize", () => {
         const activeTab = document.querySelector<HTMLElement>(
@@ -1371,7 +1402,7 @@ const btnOutline =
           focused: "border-color:#0083ff; background-color:rgba(0,123,255,0.1);",
           valid: "border-color:#28a745; background-color:rgba(40,167,69,0.1);",
         };
-        authInputWrap.setAttribute("style", `display:flex;align-items:center;gap:0.5rem;border-radius:0.5rem;border-width:2px;padding:0.75rem 1rem;transition:color 0.15s,background-color 0.15s,border-color 0.15s;${styles[state]}`);
+        authInputWrap.setAttribute("style", `display:flex;align-items:center;gap:0.5rem;border-width:0 0 2px 0;padding:0.375rem 0.75rem;transition:color 0.15s,background-color 0.15s,border-color 0.15s;${styles[state]}`);
       }
 
       let autoSubmitted = false;

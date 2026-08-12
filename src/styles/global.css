@@ -68,25 +68,33 @@
 	font-size: clamp(16px, 1.5vw, 18px) !important;
 	line-height: clamp(22px, 1.5vw, 24px);
 }
+/*
+ * Font-weight intentionally NOT set here (see class comment above) —
+ * Tailwind's font-normal/font-medium/font-semibold utilities are meant to
+ * apply on top. Earlier versions of these rules hardcoded font-weight:400,
+ * which — because these rules come after Tailwind's utility layer in
+ * source order — silently beat font-semibold/font-medium at equal
+ * specificity and made every "body-* font-semibold" combo render at 400
+ * regardless of the utility class. Found by diffing computed styles
+ * against the real site: the "3-day free trial" pill (body-medium
+ * font-semibold) was rendering at weight 400 (and visibly narrower) here
+ * but 600 in production.
+ */
 .body-large {
 	font-size: clamp(16px, 1.5vw, 16px) !important;
 	line-height: clamp(24px, 1.3vw, 24px);
-	font-weight: 400;
 }
 .body-medium {
 	font-size: clamp(14px, 1vw, 15px) !important;
 	line-height: clamp(20px, 1.2vw, 20px);
-	font-weight: 400;
 }
 .body-small {
 	font-size: clamp(12px, 0.9vw, 13px) !important;
 	line-height: clamp(18px, 1vw, 18px);
-	font-weight: 400;
 }
 .body-xsmall {
 	font-size: clamp(10px, 0.8vw, 11px) !important;
 	line-height: clamp(14px, 1vw, 14px);
-	font-weight: 400;
 }
 
 /*
@@ -119,17 +127,31 @@
 }
 
 /*
- * FAQ accordion — collapsed by default. Only the JS-opened item
- * (openFaqItem in landing.astro sets display:block inline) should show;
- * without this, every answer in the initially-visible tab renders open
- * until a click toggles it, since nothing else establishes the closed
- * state on first paint. Lives here rather than a scoped <style> in the
+ * FAQ accordion — collapsed by default (height:0, clipped, invisible).
+ * Mirrors the source's FAQAccordion Content component: framer-motion
+ * animates height from 0 to the measured scrollHeight with a spring
+ * (stiffness 120, damping 18) plus a separate 0.2s opacity fade, then
+ * — once open — height gets set to "auto" so it stays correct if
+ * content reflows. landing.astro's setFaqOpen() does the JS half of
+ * that (measuring scrollHeight, forcing a reflow before animating, and
+ * swapping to height:auto after the transition ends); this is just the
+ * base collapsed state. Lives here rather than a scoped <style> in the
  * page because scoped per-page <style> blocks were silently dropped in
  * this project (never made it into the served HTML) — global.css is the
  * one place CSS reliably applies.
  */
 .faq-answer {
-	display: none;
+	height: 0;
+	opacity: 0;
+	overflow: hidden;
+	transition:
+		height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+		opacity 0.2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+	.faq-answer {
+		transition: none;
+	}
 }
 
 /*
