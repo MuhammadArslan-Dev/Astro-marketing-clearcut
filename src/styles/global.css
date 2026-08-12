@@ -60,6 +60,10 @@
 	font-size: clamp(20px, 2.5vw, 24px) !important;
 	line-height: clamp(26px, 2vw, 32px);
 }
+.heading-medium {
+	font-size: clamp(18px, 2vw, 20px) !important;
+	line-height: clamp(24px, 1.8vw, 26px);
+}
 .heading-small {
 	font-size: clamp(16px, 1.5vw, 18px) !important;
 	line-height: clamp(22px, 1.5vw, 24px);
@@ -72,6 +76,11 @@
 .body-medium {
 	font-size: clamp(14px, 1vw, 15px) !important;
 	line-height: clamp(20px, 1.2vw, 20px);
+	font-weight: 400;
+}
+.body-small {
+	font-size: clamp(12px, 0.9vw, 13px) !important;
+	line-height: clamp(18px, 1vw, 18px);
 	font-weight: 400;
 }
 .body-xsmall {
@@ -107,4 +116,18 @@
 	.animate-marquee {
 		animation: none;
 	}
+}
+
+/*
+ * FAQ accordion — collapsed by default. Only the JS-opened item
+ * (openFaqItem in landing.astro sets display:block inline) should show;
+ * without this, every answer in the initially-visible tab renders open
+ * until a click toggles it, since nothing else establishes the closed
+ * state on first paint. Lives here rather than a scoped <style> in the
+ * page because scoped per-page <style> blocks were silently dropped in
+ * this project (never made it into the served HTML) — global.css is the
+ * one place CSS reliably applies.
+ */
+.faq-answer {
+	display: none;
 }

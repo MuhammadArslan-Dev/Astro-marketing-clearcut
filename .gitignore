@@ -9,6 +9,9 @@ node_modules/
 # wrangler local dev state (miniflare cache/db, bundled temp files)
 .wrangler/
 
+# local Claude Code session state
+.claude/
+
 # logs
 npm-debug.log*
 yarn-debug.log*

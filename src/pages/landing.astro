@@ -1,0 +1,1156 @@
+---
+import "../styles/global.css";
+
+// Static asset paths must go through BASE_URL (see src/pages/index.astro
+// for why) — normalized here since its trailing slash isn't guaranteed.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const homeUrl = "https://clearcutoff.in";
+const examUrl = (slug: string) => `https://clearcutoff.in/exam/${slug}`;
+const coursesUrl = "https://clearcutoff.in/teaching";
+
+const title = "Clear Cutoff — Crack HTET, CTET, UPTET & More";
+const description =
+  "Prepare for HTET, CTET, REET and other TET exams with PYQ-based mock tests, sectional tests, full-length papers, notes and video lessons — all in one place.";
+
+// This page is a from-scratch, "100% match" rebuild of the real production
+// homepage at clearcutoff.in (Next.js app, apps/landing/src/components/pages/LandingPage.tsx).
+// Section order, copy, and real data (pricing, exam logos, FAQ content) were
+// pulled directly from that app's source rather than guessed. See
+// PROJECT_PLAN.md for the section-by-source-file mapping.
+
+const S3_LOGOS =
+  "https://cc-teaching-content-ind.s3.dualstack.ap-south-1.amazonaws.com/exam%20logo/Webp";
+const trustedLogos = [
+  { name: "HTET", state: "Haryana", logo: `${S3_LOGOS}/htet.webp` },
+  { name: "ugcnet", state: "Haryana", logo: `${S3_LOGOS}/htet.webp` },
+  { name: "REET", state: "Rajasthan", logo: `${S3_LOGOS}/reet.webp` },
+  { name: "CTET", state: "India", logo: `${S3_LOGOS}/ctet.webp` },
+  { name: "UPTET", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+  { name: "HPTET", state: "Himachal Pradesh", logo: `${S3_LOGOS}/hptet.webp` },
+  { name: "UP PGT", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+  { name: "UP TGT", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+  { name: "UGC", state: "India", logo: `${S3_LOGOS}/UGC.webp` },
+];
+
+const navItems = [
+  { label: "Pricing", id: "pricing-section" },
+  { label: "Features", id: "features-section" },
+  { label: "FAQs", id: "faqs-section" },
+];
+
+const features = [
+  {
+    icon: "cloud",
+    title: "Practise with PYQs, notes and videos",
+    desc: "Solve PYQs as per the new syllabus, make notes on important topics, and watch videos for tough subjects.",
+  },
+  {
+    icon: "flag",
+    title: "Your favourite YouTube teachers",
+    desc: "Learn easily in Hindi or English from your favourite, trusted teachers.",
+  },
+  {
+    icon: "clock",
+    title: "Try it for free",
+    desc: "Use all features free during the trial. Watch videos, take tests, then decide whether to continue.",
+  },
+];
+
+const steps = [
+  {
+    id: "step-1",
+    number: 1,
+    title: "Start free on Clear Cutoff",
+    subtitle: "Create your free account and get started!",
+    desc: "Register with your mobile number in seconds and get instant access to all study material and tests.",
+    btn: "Get started",
+    image: "howitwork1.webp",
+  },
+  {
+    id: "step-2",
+    number: 2,
+    title: "Learn with videos, notes and mini tests",
+    subtitle: "Prepare with videos, notes and mini tests!",
+    desc: "Strengthen every subject topic-by-topic with video lectures, revision notes and mini tests.",
+    btn: "Start learning",
+    image: "howitwork2.webp",
+  },
+  {
+    id: "step-3",
+    number: 3,
+    title: "PYQ-based test series",
+    subtitle: "Practise with sectional and full-length tests!",
+    desc: "Build your confidence by solving PYQ-based sectional and full-length papers in Hindi and English.",
+    btn: "Take a test",
+    image: "howitwork3.webp",
+  },
+];
+
+const comparisonRows = [
+  {
+    label: "Affordable fee",
+    labelIcon: true,
+    coaching: "Fees ₹20,000+ (per course)",
+    app: "<b>₹99</b> (full access)",
+  },
+  {
+    label: "All subjects included",
+    labelIcon: true,
+    coaching: "Limited subject options",
+    app: "<b>All subjects</b> in one place",
+  },
+  {
+    label: "Unlimited practice tests",
+    labelIcon: true,
+    coaching: "Limited tests; mostly in class",
+    app: "Mini tests + <b>sectional tests</b> + PYQs",
+  },
+  {
+    label: "Refund guarantee",
+    labelIcon: false,
+    coaching: "No refund policy",
+    app: "<b>Full refund</b> if you don't pass after completing the course",
+  },
+  {
+    label: "Exam-ready",
+    labelIcon: false,
+    coaching: "Mostly theory; more focus on teaching",
+    app: "Focus on PYQs and the <b>exam pattern</b>",
+  },
+  {
+    label: "Subscription period",
+    labelIcon: false,
+    coaching: "Only for the course duration",
+    app: "<b>1 year</b> of full access",
+  },
+  {
+    label: "Extra charges?",
+    labelIcon: false,
+    coaching: "Pay separately for notes and study material",
+    app: "<b>Free notes</b> and study material!",
+  },
+];
+
+const pricingPlanPoints = (exam: string) => [
+  {
+    title: "All subjects included",
+    desc: `Study all ${exam} subjects in one place.`,
+  },
+  {
+    title: "Unlimited practice tests",
+    desc: "Practise with mini tests, sectional tests and PYQs — and boost your score.",
+  },
+  {
+    title: "Choose your plan",
+    desc: "Unlimited access for 6 or 15 months. Study at your own pace, whenever your exam is.",
+  },
+  {
+    title: "3-day free trial before paying",
+    desc: `Start preparing for ${exam} without paying anything.`,
+  },
+];
+
+const pricingPlans = [
+  { exam: "HTET", slug: "htet" },
+  { exam: "CTET", slug: "ctet" },
+  { exam: "REET", slug: "reet" },
+].map((p) => ({ ...p, points: pricingPlanPoints(p.exam) }));
+
+const faqFilters = [
+  { key: "refund", label: "Refund guarantee" },
+  { key: "general", label: "General" },
+  { key: "courses", label: "Courses & tests" },
+  { key: "payments", label: "Payments" },
+];
+
+const faqs: Record<string, { q: string; a: string }[]> = {
+  refund: [
+    {
+      q: "How does the refund guarantee work?",
+      a: "We trust our platform, so we offer a <b>refund guarantee</b> if you don't pass the exam! To get a refund:<br/>1. <b>Complete the course</b> (all videos and mini tests)<br/>2. <b>Take all the tests</b> (mini, sectional and full-length)<br/>3. <b>Show your official result</b> (if you don't pass)<br/>If you put in the full effort and still don't pass, we'll refund your entire fee!",
+    },
+    {
+      q: "Why is completing the course necessary for a refund?",
+      a: "Dedication is essential for success! We want students to <b>honestly follow the entire preparation process</b>. If you complete the course, your chances of passing are very high. And if you still don't pass, we keep our promise — your money is refunded.",
+    },
+    {
+      q: "What if I don't complete the course and still fail?",
+      a: "The refund only applies to students <b>who complete the course.</b> If you don't complete it, you won't be eligible for a refund.",
+    },
+    {
+      q: "Are there any hidden charges for the refund guarantee?",
+      a: "<b>No hidden charges</b>! If you meet all the conditions, we refund your amount.",
+    },
+    {
+      q: "How will I get my refund if I don't pass?",
+      a: "Once you submit your official <b>admit card PDF</b> and <b>exam result</b>, the refund is sent to your original payment method <b>within 24 hours</b>.",
+    },
+  ],
+  general: [
+    {
+      q: "What is Clear Cutoff and how will it help me pass Teaching Exams?",
+      a: "Clear Cutoff is a <b>smart exam preparation platform</b> built specifically for Teaching Exams. We provide:<br/>1. <b>Previous Year Questions (PYQs)</b> with solutions.<br/>2. <b>Detailed video lectures</b> from multiple teachers.<br/>3. <b>Revision notes</b> for quick revision.<br/>4. <b>Sectional and full-length tests</b> to track progress.<br/>5. A <b>refund guarantee</b> if you still don't pass after completing the course!",
+    },
+    {
+      q: "Why choose Clear Cutoff when other platforms exist?",
+      a: "We focus purely on exam-oriented learning:<br/>1. A <b>structured plan</b> with revision cycles<br/>2. A choice of <b>multiple teachers</b><br/>3. <b>Mini tests and full-length tests</b> (including all PYQs)<br/>4. A realistic <b>exam experience</b> with our test series<br/>5. A <b>refund guarantee</b> if you followed the course and still didn't pass!",
+    },
+    {
+      q: "Who can Clear Cutoff's courses help?",
+      a: "Clear Cutoff is perfect for:<br/>1. <b>First-time teaching-exam candidates</b>.<br/>2. <b>Repeat candidates</b> who want complete preparation.<br/>3. Students who prefer a structured, <b>exam-focused approach</b>.",
+    },
+    {
+      q: "Is the content available in both Hindi and English?",
+      a: "Yes! All our PYQs, solutions and tests are available in <b>both Hindi and English</b>.",
+    },
+    {
+      q: "Can I access the content anytime?",
+      a: "Yes! From the date of purchase right up to <b>exam day</b>, you get <b>full access</b> to all course materials.",
+    },
+  ],
+  courses: [
+    {
+      q: "What's included in the course?",
+      a: "The course includes:<br/>1. <b>PYQs</b> with detailed solutions<br/>2. <b>Video lectures</b> (multiple teachers)<br/>3. Typed <b>notes</b> and <b>flash cards</b> for quick revision<br/>4. <b>Sectional tests</b> and <b>mini tests</b><br/>5. A full-length test series matching the exam pattern",
+    },
+    {
+      q: "How are the tests designed?",
+      a: "Tests come at three levels:<br/>1. <b>Mini tests</b>: for chapter- and topic-level practice<br/>2. <b>Sectional tests</b>: for strong section-wise preparation<br/>3. <b>Full-length tests</b>: a real exam-like experience",
+    },
+    {
+      q: "Can repeat candidates benefit from Clear Cutoff?",
+      a: "Yes! Clear Cutoff suits <b>both first-time and repeat candidates</b>.",
+    },
+    {
+      q: "How are Clear Cutoff's tests better than others?",
+      a: "Our tests <b>include all PYQs and are built to match the real exam pattern</b>. The test series gives detailed solutions and feedback so you keep improving.",
+    },
+    {
+      q: "Can I prepare for just one subject or topic?",
+      a: "You can study <b>all sections of the paper</b>, or take mini tests and sectional tests for focused practice.",
+    },
+  ],
+  payments: [
+    {
+      q: "What does the course cost?",
+      a: "The course costs <b>₹99</b> after discount.",
+    },
+    {
+      q: "Are there any charges beyond the course fee?",
+      a: "No, everything is included in the course fee. There are <b>no hidden charges</b>.",
+    },
+    {
+      q: "How can I pay?",
+      a: "You can pay online via UPI, debit/credit card, net banking or wallet through a safe and <b>secure payment gateway</b>.",
+    },
+    {
+      q: "Is a trial period available?",
+      a: "Yes, you can access a <b>free trial</b> of the course before buying.",
+    },
+    {
+      q: "What if the exam gets postponed?",
+      a: "Your course access stays <b>valid until exam day</b>, even if the exam date is pushed back.",
+    },
+  ],
+};
+
+const footerPageLinks = [
+  { label: "Policy", href: `${homeUrl}/privacy-policy` },
+  { label: "Terms & Conditions", href: `${homeUrl}/terms-and-conditions` },
+  { label: "Refund", href: `${homeUrl}/refund-policy` },
+  { label: "Contact", href: `${homeUrl}/contact-us` },
+];
+
+const ICONS: Record<string, string> = {
+  cloud:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h.79a4.5 4.5 0 1 1 0 9z"></path></svg>',
+  flag: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="3"></line></svg>',
+  clock:
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9 1h6"></path></svg>',
+  fire: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 17c1.38 0 2.5-1.5 2.5-2.5 0-1.38-1.5-2-1.5-3.5a2 2 0 011-1.5c1.5 1 3 3.5 3 5.5a5 5 0 01-10 0c0-2.5 1.5-4.5 3-6"></path></svg>',
+  star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#f5a623"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
+  starGreen:
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="#00A251"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
+  check:
+    '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  checkSmall:
+    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cross:
+    '<svg class="h-5 w-5 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>',
+  arrow:
+    '<svg width="12" height="16" viewBox="0 0 12 16" fill="none"><path d="M0.195254 3.19526C0.455603 2.93491 0.878264 2.93491 1.13861 3.19526L4.99994 7.05659C5.52064 7.57729 5.52064 8.42163 4.99994 8.94233L1.13861 12.8046C0.878264 13.065 0.455603 13.065 0.195254 12.8046C-0.0650791 12.5443 -0.0650901 12.1216 0.195254 11.8613L4.05756 7.99995L0.195254 4.13765C-0.0648142 3.87738 -0.0647266 3.45558 0.195254 3.19526ZM4.36225 3.19526C4.62259 2.93492 5.04428 2.93493 5.30463 3.19526L9.16693 7.05659C9.68761 7.57727 9.68757 8.42163 9.16693 8.94233L5.30463 12.8046C5.0443 13.0646 4.6225 13.0647 4.36225 13.0647C4.1019 13.0647 4.1019 12.1216 4.36225 11.8613L8.22455 7.99995L4.36225 4.13765C4.10196 3.87734 4.10205 3.45562 4.36225 3.19526Z" fill="white"/></svg>',
+  chevron:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>',
+  phone:
+    '<svg width="20" height="20" viewBox="0 0 22 22" fill="none"><path d="M6.82884 7.82624C8.18829 11.5348 9.59569 13.0145 13.1761 14.5906L11.6244 16.7698C7.51303 14.8014 5.46522 11.4834 4.50077 8.89404L6.82884 7.82624Z" fill="white"/><path d="M7.96905 2.70813C8.69599 2.70529 9.24871 3.31017 9.19916 3.9951C9.12118 5.07296 9.2042 5.85062 9.42775 6.81455C9.55055 7.34404 9.27274 7.88182 8.83127 8.2282C8.23623 8.69507 7.78163 9.28996 7.42033 9.80206C6.91954 10.5119 5.19615 10.4609 4.81502 9.6876C4.03175 8.09844 3.50092 5.17066 4.64473 3.1926C4.8244 2.88189 5.18615 2.71901 5.56101 2.71755L7.96905 2.70813Z" fill="white"/><path d="M19.0035 14.4678C19.0939 13.7866 18.5246 13.1956 17.7986 13.1597C16.6562 13.1032 15.8487 12.9318 14.8624 12.6063C14.3205 12.4275 13.7218 12.6233 13.3046 12.9955C12.7423 13.4973 12.0623 13.8519 11.4805 14.1291C10.6742 14.5132 10.5205 16.1352 11.2875 16.5855C12.8638 17.511 15.8776 18.3607 18.0945 17.5262C18.4427 17.3951 18.6574 17.0756 18.704 16.7243L19.0035 14.4678Z" fill="white"/></svg>',
+  whatsapp:
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.017 2C6.492 2 2 6.477 2 11.985c0 1.98.579 3.827 1.579 5.383L2 22l4.756-1.554a10.03 10.03 0 0 0 5.261 1.485h.004c5.524 0 10.017-4.477 10.017-9.985C22 6.477 17.524 2 12.017 2zm0 18.29h-.003a8.29 8.29 0 0 1-4.221-1.153l-.303-.18-3.14 1.026 1.05-3.06-.198-.315a8.24 8.24 0 0 1-1.276-4.42c0-4.567 3.734-8.28 8.325-8.28 4.591 0 8.325 3.713 8.325 8.28 0 4.567-3.734 8.28-8.325 8.28z"/></svg>',
+  facebook:
+    '<svg width="10" height="20" viewBox="0 0 10 20" fill="white"><path d="M2.014 3.865V6.613H0V9.973H2.014V19.959H6.148V9.974H8.923C8.923 9.974 9.183 8.363 9.309 6.601H6.165V4.303C6.165 3.96 6.615 3.498 7.061 3.498H9.315V0H6.251C1.911 0 2.014 3.363 2.014 3.865Z"/></svg>',
+  linkedin:
+    '<svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M19.959 11.693V19.072H15.681V12.187C15.681 10.457 15.062 9.277 13.514 9.277C12.332 9.277 11.628 10.073 11.319 10.842C11.206 11.117 11.177 11.5 11.177 11.885V19.072H6.897C6.897 19.072 6.955 7.412 6.897 6.203H11.177V8.027L11.149 8.069H11.177V8.027C11.745 7.152 12.76 5.901 15.033 5.901C17.848 5.901 19.959 7.741 19.959 11.693ZM2.421 0C0.958 0 0 0.96 0 2.223C0 3.458 0.93 4.447 2.365 4.447H2.393C3.886 4.447 4.813 3.458 4.813 2.223C4.787 0.96 3.887 0 2.422 0H2.421ZM0.254 19.072H4.532V6.203H0.254V19.072Z"/></svg>',
+  instagram:
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>',
+};
+
+const btnPrimary =
+  "relative inline-flex items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap bg-brand text-white transition hover:bg-[#006fdb] active:brightness-90";
+const btnOutline =
+  "inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap border-2 border-brand text-[#005cb8] bg-transparent transition hover:bg-brand/[0.09]";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href={`${base}/favicon.ico`} />
+    <link rel="icon" type="image/png" href={`${base}/favicon.png`} />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.url.href} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body class="m-0 p-0 font-sans text-text-normal bg-white antialiased">
+    <!-- ============ Header ============ -->
+    <header
+      id="site-header"
+      class="bg-white sticky top-0 z-50 transition-shadow duration-300"
+    >
+      <nav
+        class="h-16 max-w-7xl mx-auto px-4 flex items-center justify-between"
+      >
+        <a href={homeUrl} class="flex items-center">
+          <img
+            src={`${base}/main-logo.svg`}
+            alt="Clear Cutoff"
+            width="150"
+            height="32"
+          />
+        </a>
+        <div id="nav-menu" class="relative hidden md:flex items-center gap-2">
+          <div
+            id="nav-indicator"
+            class="absolute bottom-0 h-0.5 bg-brand rounded-full transition-all duration-300 ease-out pointer-events-none opacity-0"
+          >
+          </div>
+          {
+            navItems.map((item) => (
+              <button
+                type="button"
+                data-scroll-to={item.id}
+                class="nav-link relative px-4 py-2 cursor-pointer z-10 text-text-subtle hover:text-brand transition-colors duration-300 body-medium font-semibold"
+              >
+                {item.label}
+              </button>
+            ))
+          }
+        </div>
+        <a
+          class={`${btnPrimary} hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
+          href={homeUrl}
+        >
+          Continue Free Prep
+          <span set:html={ICONS.arrow} />
+        </a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ============ Hero ============ -->
+      <section class="py-8 md:py-16 px-3">
+        <div
+          class="max-w-[1100px] mx-auto grid md:grid-cols-11 gap-10 md:gap-12 items-center"
+        >
+          <div
+            class="md:col-span-6 order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left"
+          >
+            <h1 class="heading-xlarge font-semibold text-text-normal mb-4">
+              Crack the <span class="text-brand">HTET</span> exam with PYQ-based tests,
+              notes and videos
+            </h1>
+            <p class="body-large text-text-subtle mb-8 max-w-lg">
+              Real exam-level questions, sectional tests and full-length papers
+              — all in one place.
+            </p>
+            <div class="flex flex-col md:flex-row items-center gap-6 w-full">
+              <div class="flex flex-col items-center md:items-start gap-3">
+                <a class={`${btnPrimary} px-6 py-2.5 text-base`} href={homeUrl}>
+                  Continue Free Prep
+                  <span set:html={ICONS.arrow} />
+                </a>
+                <div class="flex flex-col gap-1 items-center md:items-start">
+                  <span
+                    class="px-3 py-1 rounded-full bg-brand/10 text-brand body-medium border-2 border-brand font-semibold"
+                  >
+                    3-day free trial
+                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span set:html={ICONS.fire} />
+                    <span class="body-small text-text-muted"
+                      >No card or payment required</span
+                    >
+                  </div>
+                </div>
+              </div>
+              <div
+                class="flex items-center gap-2 bg-[#f8fafc] px-3 h-10 rounded-md"
+              >
+                <span set:html={ICONS.star} />
+                <span class="heading-large font-semibold">4.9</span>
+                <span class="body-xsmall text-text-muted"
+                  >Average rating given by our students</span
+                >
+              </div>
+            </div>
+          </div>
+          <div
+            class="md:col-span-5 order-1 md:order-2 flex justify-center items-center"
+          >
+            <img
+              src={`${base}/hero-img.webp`}
+              alt="Student preparing for exams with pen and paper"
+              width="320"
+              height="320"
+              loading="eager"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Trusted-by logo marquee ============ -->
+      <section class="py-4">
+        <div class="max-w-[1100px] mx-auto px-3 flex flex-col gap-6">
+          <h2 class="heading-large font-semibold text-center text-text-normal">
+            Trusted by <span class="text-brand">10,000+</span> students to pass TET
+            exams across India
+          </h2>
+          <div class="overflow-hidden">
+            <div class="flex items-center gap-14 w-max animate-marquee">
+              {
+                [...trustedLogos, ...trustedLogos].map((exam) => (
+                  <div class="flex flex-col items-center gap-2 flex-shrink-0 w-[88px]">
+                    <img
+                      src={exam.logo}
+                      alt={`${exam.name} logo`}
+                      width="64"
+                      height="64"
+                      class="grayscale opacity-70"
+                      loading="lazy"
+                    />
+                    <span class="body-large font-semibold text-text-normal text-center">
+                      {exam.name}
+                    </span>
+                    <span class="body-xsmall text-text-muted text-center">
+                      {exam.state}
+                    </span>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+          <div
+            class="flex flex-col md:flex-row items-center justify-center gap-3 text-center"
+          >
+            <p class="body-medium text-text-subtle">
+              Preparing for other exams? Explore all of Clear Cutoff's <span
+                class="text-brand font-semibold">Teaching Exams</span
+              >!
+            </p>
+            <a class={`${btnOutline} px-5 py-2 text-sm`} href={coursesUrl}
+              >See all courses and test series!</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Features ============ -->
+      <section id="features-section" class="bg-[#f5f7fb] scroll-mt-16">
+        <div class="max-w-[1120px] mx-auto px-3 py-10 md:py-16">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <p
+                class="text-brand body-medium font-semibold mb-2 text-center md:text-left"
+              >
+                Exam prep anytime, anywhere
+              </p>
+              <h2
+                class="display-small font-semibold text-center md:text-left mb-3"
+              >
+                <span class="text-brand">Everything you need</span> to pass the exam
+              </h2>
+              <p class="body-large text-text-subtle text-center md:text-left">
+                Videos, notes and tests for every subject to prepare, practise
+                and succeed — all in one place
+              </p>
+            </div>
+            <div class="flex flex-col gap-3">
+              {
+                features.map((f) => (
+                  <div class="flex items-center gap-4 p-2">
+                    <div class="w-14 h-14 rounded-md flex justify-center items-center border-2 border-gray-200 bg-white shrink-0 text-text-normal">
+                      <span set:html={ICONS[f.icon]} />
+                    </div>
+                    <div>
+                      <h3 class="heading-small font-semibold mb-1">
+                        {f.title}
+                      </h3>
+                      <p class="body-medium text-text-subtle">{f.desc}</p>
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ How it works ============ -->
+      <section class="bg-white">
+        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+          <div class="flex flex-col gap-12">
+            <div class="text-center">
+              <p class="text-brand body-medium font-semibold mb-2">
+                How it works
+              </p>
+              <h2 class="display-medium font-semibold mb-3">
+                3 easy steps to crack the Teaching <span class="text-brand"
+                  >Exam</span
+                >
+              </h2>
+              <p class="body-large text-text-subtle">
+                Follow these 3 simple steps to succeed in your exam
+              </p>
+            </div>
+            <div class="max-w-4xl mx-auto space-y-16">
+              {
+                steps.map((step) => (
+                  <div
+                    id={step.id}
+                    data-step={step.id}
+                    class="how-it-work-step grid md:grid-cols-[1fr_auto_1fr] items-center gap-6 md:gap-20"
+                  >
+                    <div class="order-2 md:order-1 flex items-start gap-3">
+                      <div class="md:hidden w-8 flex flex-col gap-2 h-full items-center">
+                        <div class="step-badge-mobile rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold mt-1 transition bg-gray-300 text-gray-700">
+                          {step.number}
+                        </div>
+                        <div class="step-line-mobile h-[220px] w-0.5 bg-gray-300" />
+                      </div>
+                      <div class="flex flex-col gap-5">
+                        <div>
+                          <h3 class="heading-xlarge font-semibold mb-2">
+                            {step.title}
+                          </h3>
+                          <p class="heading-medium font-semibold text-text-normal">
+                            {step.subtitle}
+                          </p>
+                        </div>
+                        <p class="body-large text-text-muted">{step.desc}</p>
+                        <a
+                          class={`${btnOutline} w-[220px] justify-center px-5 py-2 text-sm`}
+                          href={homeUrl}
+                        >
+                          {step.btn}
+                        </a>
+                      </div>
+                    </div>
+                    <div class="hidden md:flex justify-center order-2">
+                      <div class="step-badge-desktop w-10 h-10 rounded-full flex items-center justify-center font-bold shadow transition-all duration-300 bg-gray-300 text-gray-600">
+                        {step.number}
+                      </div>
+                    </div>
+                    <div class="order-3">
+                      <img
+                        src={`${base}/${step.image}`}
+                        alt={`Step ${step.number}: ${step.title}`}
+                        width="370"
+                        height="370"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Comparison ============ -->
+      <section id="comparison-section" class="bg-[#f5f7fb]">
+        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+          <div class="flex flex-col gap-12">
+            <div class="text-center">
+              <p class="text-brand body-medium font-semibold mb-2">
+                Clear Cutoff vs coaching centres
+              </p>
+              <h2 class="display-medium font-semibold mb-3">
+                <span class="text-brand">All</span> subjects, <span
+                  class="text-brand">unlimited</span
+                > practice!
+              </h2>
+              <p class="body-large text-text-subtle">
+                Save money, study anytime and prepare fully without going to
+                coaching!
+              </p>
+            </div>
+            <div class="space-y-4">
+              <div class="w-full overflow-x-auto">
+                <div
+                  class="min-w-[720px] mx-auto max-w-[950px] bg-[#f8fafc] rounded-2xl px-2 py-3"
+                >
+                  <div class="flex w-full rounded-xl">
+                    <div class="flex-[1_1_35%] min-w-[180px]">
+                      <h3
+                        class="heading-large font-semibold text-center mb-4 h-[42px] flex items-end justify-center"
+                      >
+                        Comparison
+                      </h3>
+                      <div class="bg-white py-2 rounded-l-xl">
+                        {
+                          comparisonRows.map((row, i) => (
+                            <div
+                              class={`flex items-center justify-center gap-3 flex-row-reverse min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+                            >
+                              {row.labelIcon && (
+                                <span set:html={ICONS.checkSmall} />
+                              )}
+                              <span class="heading-small font-semibold">
+                                {row.label}
+                              </span>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                    <div class="flex-[1_1_35%] min-w-[180px]">
+                      <h3
+                        class="heading-large font-semibold text-center mb-4 h-[42px] flex items-end justify-center"
+                      >
+                        Coaching centre
+                      </h3>
+                      <div class="bg-white py-2">
+                        {
+                          comparisonRows.map((row, i) => (
+                            <div
+                              class={`flex items-center gap-3 min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+                            >
+                              <span set:html={ICONS.cross} />
+                              <span class="heading-small">{row.coaching}</span>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                    <div
+                      class="flex-[1_1_35%] min-w-[240px] rounded-xl outline outline-4 outline-blue-500"
+                    >
+                      <div class="mb-2 flex justify-center pt-3">
+                        <img
+                          src={`${base}/main-logo.svg`}
+                          alt="Clear Cutoff"
+                          width="150"
+                          height="36"
+                        />
+                      </div>
+                      <div class="bg-white py-2 rounded-r-xl">
+                        {
+                          comparisonRows.map((row, i) => (
+                            <div
+                              class={`flex items-center gap-3 min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+                            >
+                              <span set:html={ICONS.check} />
+                              <span class="heading-small" set:html={row.app} />
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-center gap-1.5">
+                <span set:html={ICONS.fire} />
+                <p class="heading-small text-text-muted">
+                  Comparison based on common coaching-centre practices
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ Pricing ============ -->
+      <section id="pricing-section" class="bg-white scroll-mt-16">
+        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+          <div class="flex flex-col gap-10">
+            <div class="space-y-4">
+              <div class="text-center">
+                <p class="text-brand body-medium font-semibold mb-2">
+                  Simple. Transparent. Affordable.
+                </p>
+                <h2 class="display-small md:display-medium font-semibold mb-3">
+                  <span class="text-brand">One</span> price, <span
+                    class="text-brand">everything</span
+                  > included!
+                </h2>
+                <p class="body-large text-text-subtle">
+                  Pay once. 6 months of access. Everything you need to pass on
+                  the first attempt.
+                </p>
+              </div>
+              <div
+                class="flex flex-col md:flex-row items-center justify-center gap-5 py-4"
+              >
+                <img
+                  src={`${base}/guarantee-badge.webp`}
+                  alt="Success assurance guarantee badge"
+                  width="120"
+                  height="96"
+                />
+                <div class="text-center md:text-left">
+                  <p class="heading-medium font-semibold text-text-normal">
+                    Get a <span class="text-brand">refund</span> if you don't pass
+                    the exam!
+                  </p>
+                  <p class="body-large text-text-muted">
+                    No risk, just results.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2"
+            >
+              {
+                pricingPlans.map((plan) => (
+                  <div class="w-full max-w-[390px] mx-auto rounded-xl border border-border-subtle bg-white p-6">
+                    <h3 class="heading-xlarge font-semibold text-center mb-3">
+                      {plan.exam} exam
+                    </h3>
+                    <hr class="border-t border-[#CDD7E1] my-0" />
+                    <div class="bg-brand/[0.09] rounded-lg h-[72px] flex items-center justify-center gap-4 my-3">
+                      <span class="heading-2xlarge font-semibold text-text-normal">
+                        <span class="heading-xlarge font-semibold">₹</span>99
+                      </span>
+                      <span class="body-large text-text-subtle">
+                        6-month subscription
+                      </span>
+                    </div>
+                    <ul class="flex flex-col gap-3">
+                      {plan.points.map((p) => (
+                        <li class="flex items-start gap-3">
+                          <span
+                            class="flex-none mt-0.5"
+                            set:html={ICONS.check}
+                          />
+                          <span>
+                            <span class="block body-large font-semibold text-text-normal">
+                              {p.title}
+                            </span>
+                            <span class="block body-medium text-text-subtle">
+                              {p.desc}
+                            </span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <hr class="border-t border-[#CDD7E1] my-3" />
+                    <a
+                      class={`${btnPrimary} w-full justify-center px-6 py-2.5 text-base`}
+                      href={examUrl(plan.slug)}
+                    >
+                      Start for FREE
+                      <span set:html={ICONS.arrow} />
+                    </a>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="flex flex-col gap-3 max-w-lg mx-auto text-center">
+              <p class="heading-large font-semibold">
+                <span class="text-brand">10,000+</span> students used this to pass
+                the TET exam.
+              </p>
+              <p class="body-medium text-text-subtle">
+                Join thousands of successful TET aspirants who chose smart,
+                affordable prep over expensive coaching!
+              </p>
+              <p class="flex items-center justify-center gap-1.5 body-large">
+                <span set:html={ICONS.starGreen} />
+                <span class="font-semibold text-xl">4.9+</span> average rating from
+                our students!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ FAQ ============ -->
+      <section id="faqs-section" class="bg-[#f5f7fb] scroll-mt-16">
+        <div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+          <div class="flex flex-col gap-6">
+            <div class="max-w-3xl mx-auto text-center">
+              <p class="text-brand body-medium font-semibold mb-2">
+                Got a question? We've got the answer!
+              </p>
+              <h2 class="display-medium font-semibold mb-3">
+                Frequently asked <span class="text-brand">questions</span>
+              </h2>
+              <p class="body-large text-text-subtle">
+                Everything worth knowing before you start preparing with Clear
+                Cutoff.
+              </p>
+            </div>
+
+            <div
+              class="max-w-lg mx-auto bg-white rounded-xl border-2 border-brand p-6 space-y-4"
+            >
+              <h3 class="heading-small font-semibold">
+                Can you actually pass the exam with Clear Cutoff?
+              </h3>
+              <p class="body-medium text-text-subtle">
+                Yes — if you practise, revise and prepare for the exam the smart
+                way.
+              </p>
+              <ul class="space-y-2 body-medium list-disc pl-5 text-text-subtle">
+                <li>
+                  Practise high-quality <b class="text-text-normal"
+                    >Previous Year Questions (PYQs)</b
+                  > and exam-level questions
+                </li>
+                <li>
+                  Strengthen your concepts through <b class="text-text-normal"
+                    >tests and analysis</b>
+                </li>
+                <li>
+                  Identify <b class="text-text-normal">your weak areas</b> with chapter-wise,
+                  sectional and full-length tests
+                </li>
+              </ul>
+              <p class="body-medium text-text-subtle">
+                👉 You can start for free and decide for yourself (no payment
+                required).
+              </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto w-full">
+              <div
+                id="faq-tabs"
+                class="relative flex bg-brand-dark py-1 overflow-x-auto px-1 md:rounded-full"
+              >
+                <div
+                  id="faq-tab-indicator"
+                  class="absolute bg-white rounded-full shadow-sm transition-all duration-300 ease-out"
+                >
+                </div>
+                {
+                  faqFilters.map((f, i) => (
+                    <button
+                      type="button"
+                      data-tab={f.key}
+                      class={`faq-tab relative px-4 py-1.5 flex justify-center items-center rounded-full whitespace-nowrap z-10 cursor-pointer body-medium ${i === 0 ? "font-semibold text-text-normal" : "text-white"}`}
+                    >
+                      {f.label}
+                    </button>
+                  ))
+                }
+              </div>
+            </div>
+
+            <div
+              id="faq-list"
+              class="flex flex-col gap-3 max-w-[900px] mx-auto w-full"
+            >
+              {
+                faqFilters.map((f, fi) =>
+                  faqs[f.key].map((item, qi) => (
+                    <div
+                      class="faq-item rounded-xl border-2 px-5 py-4 cursor-pointer bg-white border-gray-200"
+                      data-tab-group={f.key}
+                      data-open={fi === 0 && qi === 0 ? "true" : "false"}
+                      style={fi === 0 ? "" : "display:none"}
+                    >
+                      <button
+                        type="button"
+                        class="faq-question w-full flex items-center justify-between gap-4 text-left cursor-pointer"
+                      >
+                        <span class="heading-small font-semibold">
+                          {item.q}
+                        </span>
+                        <span class="faq-chevron flex-none w-5 h-5 text-text-normal transition-transform duration-300">
+                          <span set:html={ICONS.chevron} />
+                        </span>
+                      </button>
+                      <div
+                        class="faq-answer body-medium text-text-subtle pt-2"
+                        set:html={item.a}
+                      />
+                    </div>
+                  )),
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ============ Footer ============ -->
+    <footer>
+      <div
+        class="w-full py-6 flex flex-col justify-center items-center gap-3"
+        style="background-color:#006BD1"
+      >
+        <div class="flex gap-6 md:gap-14">
+          <a
+            href="tel:7210708599"
+            class="flex items-center gap-2 text-white body-large font-medium"
+          >
+            <span set:html={ICONS.phone} />
+            7210708599
+          </a>
+          <a
+            href="https://wa.me/917210708599"
+            target="_blank"
+            rel="noopener"
+            class="flex items-center gap-2 text-white body-large font-medium"
+          >
+            <span set:html={ICONS.whatsapp} />
+            WhatsApp
+          </a>
+        </div>
+        <div
+          class="w-full flex flex-wrap gap-4 text-white text-center md:gap-6 lg:flex-row flex-col-reverse justify-between items-center px-5 md:px-20"
+        >
+          <div class="min-w-[200px]">
+            <p class="body-small">© 2026 Clear Cutoff. All rights reserved!</p>
+          </div>
+          <div class="flex flex-wrap gap-6 justify-center">
+            {
+              footerPageLinks.map((link) => (
+                <a href={link.href} class="text-white body-large font-medium">
+                  {link.label}
+                </a>
+              ))
+            }
+          </div>
+          <div class="flex justify-center gap-6 min-w-[200px]">
+            <a
+              href="https://www.instagram.com/clearcutoff_teaching"
+              target="_blank"
+              rel="noopener"
+              aria-label="Instagram"
+              set:html={ICONS.instagram}
+            />
+            <a
+              href="https://www.facebook.com/people/Clear-Cutoff-Teaching/61573525911878"
+              target="_blank"
+              rel="noopener"
+              aria-label="Facebook"
+              set:html={ICONS.facebook}
+            />
+            <a
+              href="https://www.linkedin.com/company/clear-cutoff"
+              target="_blank"
+              rel="noopener"
+              aria-label="LinkedIn"
+              set:html={ICONS.linkedin}
+            />
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // ---- Header: shadow after 10px scroll (mirrors useScrollShadow(10)) ----
+      const header = document.getElementById("site-header");
+      const onHeaderScroll = () => {
+        if (!header) return;
+        header.classList.toggle("shadow-md", window.scrollY > 10);
+      };
+      window.addEventListener("scroll", onHeaderScroll);
+      onHeaderScroll();
+
+      // ---- Nav: hover-underline indicator + smooth scroll-to-section ----
+      const navMenu = document.getElementById("nav-menu");
+      const navIndicator = document.getElementById("nav-indicator");
+      if (navMenu && navIndicator) {
+        const links = navMenu.querySelectorAll<HTMLElement>(".nav-link");
+        links.forEach((link) => {
+          link.addEventListener("mouseenter", () => {
+            const menuRect = navMenu.getBoundingClientRect();
+            const rect = link.getBoundingClientRect();
+            navIndicator.style.left = `${rect.left - menuRect.left}px`;
+            navIndicator.style.width = `${rect.width}px`;
+            navIndicator.style.opacity = "1";
+          });
+          link.addEventListener("click", () => {
+            const id = link.getAttribute("data-scroll-to");
+            const el = id && document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+        });
+        navMenu.addEventListener("mouseleave", () => {
+          navIndicator.style.opacity = "0";
+        });
+      }
+
+      // ---- How it works: highlight the step closest to 20% down the viewport
+      // (mirrors src/hooks/useActiveStep.tsx's scroll-listener algorithm) ----
+      const stepEls = Array.from(
+        document.querySelectorAll<HTMLElement>(".how-it-work-step"),
+      );
+      const onStepScroll = () => {
+        const mid = window.innerHeight / 5;
+        let closest: HTMLElement | null = null;
+        let minDist = Infinity;
+        for (const el of stepEls) {
+          const rect = el.getBoundingClientRect();
+          const dist = Math.abs(rect.top - mid);
+          if (dist < minDist) {
+            minDist = dist;
+            closest = el;
+          }
+        }
+        for (const el of stepEls) {
+          const isActive = el === closest;
+          const badgeMobile =
+            el.querySelector<HTMLElement>(".step-badge-mobile");
+          const badgeDesktop = el.querySelector<HTMLElement>(
+            ".step-badge-desktop",
+          );
+          const line = el.querySelector<HTMLElement>(".step-line-mobile");
+          for (const badge of [badgeMobile, badgeDesktop]) {
+            if (!badge) continue;
+            badge.classList.toggle("bg-brand", isActive);
+            badge.classList.toggle("text-white", isActive);
+            badge.classList.toggle("bg-gray-300", !isActive);
+            badge.classList.toggle("text-gray-600", !isActive);
+            badge.classList.toggle("scale-110", isActive);
+            badge.classList.toggle("shadow-lg", isActive);
+          }
+          if (line) {
+            line.classList.toggle("bg-brand", isActive);
+            line.classList.toggle("bg-gray-300", !isActive);
+          }
+        }
+      };
+      window.addEventListener("scroll", onStepScroll);
+      onStepScroll();
+
+      // ---- FAQ: tab switching (with sliding pill) + accordion ----
+      const tabsContainer = document.getElementById("faq-tabs");
+      const tabIndicator = document.getElementById("faq-tab-indicator");
+      const tabs = document.querySelectorAll<HTMLElement>(".faq-tab");
+      const faqItems = document.querySelectorAll<HTMLElement>(".faq-item");
+
+      function positionTabIndicator(tab: HTMLElement) {
+        if (!tabsContainer || !tabIndicator) return;
+        const containerRect = tabsContainer.getBoundingClientRect();
+        const rect = tab.getBoundingClientRect();
+        tabIndicator.style.left = `${rect.left - containerRect.left}px`;
+        tabIndicator.style.width = `${rect.width}px`;
+        tabIndicator.style.top = `${rect.top - containerRect.top}px`;
+        tabIndicator.style.height = `${rect.height}px`;
+      }
+
+      function setActiveTab(key: string) {
+        tabs.forEach((tab) => {
+          const isActive = tab.getAttribute("data-tab") === key;
+          tab.classList.toggle("text-text-normal", isActive);
+          tab.classList.toggle("font-semibold", isActive);
+          tab.classList.toggle("text-white", !isActive);
+          if (isActive) positionTabIndicator(tab);
+        });
+        faqItems.forEach((item) => {
+          const matches = item.getAttribute("data-tab-group") === key;
+          (item as HTMLElement).style.display = matches ? "" : "none";
+          item.setAttribute("data-open", "false");
+          item.classList.remove("border-brand");
+          item.classList.add("border-gray-200");
+          const answer = item.querySelector<HTMLElement>(".faq-answer");
+          const chevron = item.querySelector<HTMLElement>(".faq-chevron");
+          if (answer) answer.style.display = "none";
+          if (chevron) chevron.style.transform = "";
+        });
+        const firstItem = document.querySelector<HTMLElement>(
+          `.faq-item[data-tab-group="${key}"]`,
+        );
+        if (firstItem) openFaqItem(firstItem);
+      }
+
+      function openFaqItem(item: HTMLElement) {
+        item.setAttribute("data-open", "true");
+        item.classList.add("border-brand");
+        item.classList.remove("border-gray-200");
+        const answer = item.querySelector<HTMLElement>(".faq-answer");
+        const chevron = item.querySelector<HTMLElement>(".faq-chevron");
+        if (answer) answer.style.display = "block";
+        if (chevron) chevron.style.transform = "rotate(180deg)";
+      }
+
+      function closeFaqItem(item: HTMLElement) {
+        item.setAttribute("data-open", "false");
+        item.classList.remove("border-brand");
+        item.classList.add("border-gray-200");
+        const answer = item.querySelector<HTMLElement>(".faq-answer");
+        const chevron = item.querySelector<HTMLElement>(".faq-chevron");
+        if (answer) answer.style.display = "none";
+        if (chevron) chevron.style.transform = "";
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const key = tab.getAttribute("data-tab");
+          if (key) setActiveTab(key);
+        });
+      });
+
+      faqItems.forEach((item) => {
+        const question = item.querySelector(".faq-question");
+        question?.addEventListener("click", () => {
+          const isOpen = item.getAttribute("data-open") === "true";
+          const group = item.getAttribute("data-tab-group");
+          document
+            .querySelectorAll<HTMLElement>(
+              `.faq-item[data-tab-group="${group}"]`,
+            )
+            .forEach((el) => {
+              if (el !== item) closeFaqItem(el);
+            });
+          if (isOpen) closeFaqItem(item);
+          else openFaqItem(item);
+        });
+      });
+
+      // Initial state: first tab active, first question open, answer visible.
+      if (tabs.length) {
+        requestAnimationFrame(() => positionTabIndicator(tabs[0]));
+        const firstItem = document.querySelector<HTMLElement>(
+          '.faq-item[data-tab-group="refund"]',
+        );
+        if (firstItem) {
+          const answer = firstItem.querySelector<HTMLElement>(".faq-answer");
+          const chevron = firstItem.querySelector<HTMLElement>(".faq-chevron");
+          if (answer) answer.style.display = "block";
+          if (chevron) chevron.style.transform = "rotate(180deg)";
+        }
+      }
+      window.addEventListener("resize", () => {
+        const activeTab = document.querySelector<HTMLElement>(
+          ".faq-tab[data-tab].text-text-normal",
+        );
+        if (activeTab) positionTabIndicator(activeTab);
+      });
+    </script>
+  </body>
+</html>
