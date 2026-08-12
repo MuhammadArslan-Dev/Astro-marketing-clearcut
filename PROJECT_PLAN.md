@@ -170,6 +170,20 @@ Added `src/pages/landing.astro` — a from-scratch rebuild of the real productio
 
 Verified: local build + dev-server walkthrough (hero → footer, including clicking a FAQ tab to confirm the sliding pill and tab-switch), then pushed and re-verified the same walkthrough on `https://clearcutoff.in/go/landing`.
 
+## `/go/landing` mobile pass — floating CTA bar + point-by-point fixes
+
+The user flagged that a mobile-only floating CTA bar (visible on the real site on phones) was missing. Root cause: initial research covered the 8 main sections but not `global/FloatingButton.tsx`, which the page tree renders separately (`Header → LandingPage → FloatingButton → FooterWrap`). A follow-up research pass fetched it plus a broader "what else differs between mobile and desktop beyond simple reflow" check, which turned up several real gaps beyond just the floating button:
+
+- **Floating CTA bar** (new) — `md:hidden` sticky bottom bar, "Start 3-day FREE trial", placed between `<main>` and the footer to match DOM order.
+- **Shimmer/arrow-nudge animation** — both the header's desktop CTA and the new floating bar use `showShimmer`, which idles until the visitor's first click/scroll/keydown/touch, then cycles a 4.5s arrow-nudge phase and a 2.5s shimmer-sweep phase forever. Reimplemented with CSS `@keyframes` (`shimmer-sweep`, `arrow-nudge`) + a small vanilla-JS phase loop, since there's no framer-motion/React here.
+- **Hero CTA arrow removed** — the source explicitly passes `showIcon={false}` to that one button only; every other CTA on the page keeps the arrow.
+- **Step buttons got their (static) arrow icon** — `showIcon` defaults `true` there, it had been left off.
+- **Mobile vs desktop step badges are different elements, not one reflowed one** — mobile's 32px badge only swaps color when active; desktop's 40px badge additionally scales up (`scale-110`) and gets a shadow. Was wrongly applying the desktop treatment to both.
+- **Footer phone link text differs by breakpoint** — mobile shows "Phone", desktop shows the literal number. Source does this with a `useIsMobile()` JS hook at the 768px breakpoint; replicated as plain CSS `md:hidden` / `hidden md:inline` text swap for the same visual result without extra JS.
+- **Confirmed, not changed:** mobile header has no hamburger menu on the real site — nav links and the header CTA are simply hidden below `md`, and the floating bar is the *only* persistent mobile CTA path. A `MobileMenu.tsx` exists in the source but is unused dead code (not imported anywhere) — correctly did not build a hamburger menu here either, even though its existence might suggest one was planned.
+
+Verification note: the browser tool's `resize_window` does not actually change `window.innerWidth` in this environment (confirmed again — same limitation hit earlier in the session), so mobile behavior was verified two ways instead of visually resizing: (1) reading the real component source for exact Tailwind breakpoint classes rather than guessing, (2) checking `getComputedStyle(...).display` on the built page at the current (desktop) width to confirm `md:hidden` correctly evaluates to `none` there — which by construction means it evaluates to visible below 768px, the same mechanism already proven working elsewhered on this page (`hidden md:flex` on the nav, which **is** visibly correct on desktop in every screenshot taken).
+
 ## Still open / TODO
 
 - [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern)
