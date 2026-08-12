@@ -146,6 +146,30 @@ The original custom-designed hero/problem/steps layout was replaced with a faith
 - **Real assets copied from `apps/landing/public/`:** `guarantee-badge-img.webp` → `public/guarantee-badge.webp`, `courseBadge/course-badge-green-dark.svg` → `public/badge-green.svg`.
 - Verified: built locally, compared side-by-side against the live page section-by-section (hero, marquee, pricing) via screenshots — matches. Pushed and confirmed live at `clearcutoff.in/go/htet`.
 
+## `/go/landing` — full homepage rebuild, "100% match"
+
+Added `src/pages/landing.astro` — a from-scratch rebuild of the real production homepage (`clearcutoff.in/`, `apps/landing/src/components/pages/LandingPage.tsx`). Section order and every real content piece (copy, ₹99 pricing × 3 exams, exam-logo data, all 20 FAQ answers across 4 tabs) were pulled from the actual source components via research agents, not guessed — see the section-by-source-file list below.
+
+**Sections (in order), source component each was rebuilt from:**
+- Header — `layout/headers/Header.tsx` + `HeaderWraper.tsx` (scroll shadow) + `ui/NavLink.tsx` (hover-underline indicator, smooth scroll-to-section)
+- Hero — `sections/heros/HomeHero.tsx` + `HeroActions.tsx`
+- Logo marquee — `sections/carousal/CourseLogoCarousal.tsx` + `LogoCarousel.tsx` (real exam-logo data, "explore all courses" CTA line)
+- Features — `sections/FeaturesSection.tsx` (3-item icon list)
+- How it works — `sections/howitwork/HowItWorksSection.tsx` + `HowItWorkStep.tsx` + `hooks/useActiveStep.tsx` (3 numbered steps; the "closest step to 20%-of-viewport" scroll-highlighting algorithm was copied verbatim as plain JS, not approximated with IntersectionObserver)
+- Comparison — `sections/ComparisonSection.tsx` + `shared/ComparisonTable.tsx` (full 7-row table, Clear Cutoff column outlined + logo)
+- Pricing — `sections/pricing/PricingSectionWrapper.tsx` + `PricingSection.tsx` + `ui/cards/PricingCard.tsx` (3 cards: HTET/CTET/REET, all ₹99/6-month — confirmed the source hardcodes this price regardless of exam) + `GuaranteeBadge.tsx` + `global/StudentTrustBlock.tsx`
+- FAQ — `sections/FAQsSection.tsx` + `shared/FAQAccordion.tsx` (4 tabs × 5 real Q&As each — all 20 answers, not just titles, fetched from source)
+- Footer — `layout/Footer.tsx` (real phone/WhatsApp/social links, hardcoded `#006BD1` bar color — deliberately not the `--color-brand-dark` token, since the source hardcodes a different legacy blue there)
+
+**Framer-motion → plain CSS/JS translations** (no React runtime on this static site): logo marquee (linear `useAnimationFrame` → CSS `@keyframes`, already established for the htet page), FAQ tab sliding pill (`layoutId` → JS `getBoundingClientRect` positioning + CSS transition), step-highlight badges (already CSS transitions in the source, ported directly), accordion open/close (already plain state in the source, ported directly).
+
+**Bugs hit and fixed:**
+1. **Scoped `<style>` blocks silently dropped** — a page-level `<style>.faq-answer{display:none}</style>` never made it into either the dev-server or production output (verified via curl: zero `<style>` tags rendered). Root cause not fully diagnosed; workaround was moving the rule into `global.css`, which reliably compiles — confirmed present in `dist/_astro/*.css` after the fix. Symptom before the fix: every FAQ answer in the active tab rendered open at once instead of just the first.
+2. **Stale dev server processes** — over the course of the session, `astro dev` had been started multiple times in the background without killing prior instances (14 stray `node.exe` processes accumulated). One of the old instances kept answering on port 4321 with pre-fix compiled CSS, making the style-block fix look like it wasn't working. Fixed by `taskkill /F /IM node.exe` and starting a single fresh instance — always do this before trusting a "still broken" result during a long session.
+3. **Browser edge/client cache showing the old `index.astro` placeholder** momentarily on the first live load of `/go/landing` right after deploy — `curl` already showed the correct page; a hard reload in-browser resolved it. Not a real bug, just propagation/cache lag immediately post-deploy.
+
+Verified: local build + dev-server walkthrough (hero → footer, including clicking a FAQ tab to confirm the sliding pill and tab-switch), then pushed and re-verified the same walkthrough on `https://clearcutoff.in/go/landing`.
+
 ## Still open / TODO
 
 - [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern)
