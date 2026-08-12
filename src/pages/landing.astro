@@ -6,7 +6,6 @@ import "../styles/global.css";
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 const homeUrl = "https://clearcutoff.in";
-const examUrl = (slug: string) => `https://clearcutoff.in/exam/${slug}`;
 const coursesUrl = "https://clearcutoff.in/teaching";
 
 const title = "Clear Cutoff — Crack HTET, CTET, UPTET & More";
@@ -151,11 +150,10 @@ const pricingPlanPoints = (exam: string) => [
   },
 ];
 
-const pricingPlans = [
-  { exam: "HTET", slug: "htet" },
-  { exam: "CTET", slug: "ctet" },
-  { exam: "REET", slug: "reet" },
-].map((p) => ({ ...p, points: pricingPlanPoints(p.exam) }));
+const pricingPlans = ["HTET", "CTET", "REET"].map((exam) => ({
+  exam,
+  points: pricingPlanPoints(exam),
+}));
 
 const faqFilters = [
   { key: "refund", label: "Refund guarantee" },
@@ -272,6 +270,8 @@ const ICONS: Record<string, string> = {
   star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#f5a623"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
   starGreen:
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="#00A251"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
+  indiaFlag:
+    '<svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="14" rx="2" fill="#fff"/><path d="M0 2a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2.67H0V2Z" fill="#FF9933"/><path d="M0 9.33h20V12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V9.33Z" fill="#128807"/><circle cx="10" cy="7" r="1.6" fill="none" stroke="#000088" stroke-width="0.3"/><circle cx="10" cy="7" r="0.25" fill="#000088"/></svg>',
   check:
     '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   checkSmall:
@@ -353,14 +353,15 @@ const btnOutline =
             ))
           }
         </div>
-        <a
+        <button
+          type="button"
+          data-open-auth
           class={`${btnPrimary} shimmer-btn hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
-          href={homeUrl}
         >
           <span class="btn-shimmer-overlay"></span>
           <span class="relative z-[1]">Continue Free Prep</span>
           <span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
-        </a>
+        </button>
       </nav>
     </header>
 
@@ -383,9 +384,9 @@ const btnOutline =
             </p>
             <div class="flex flex-col md:flex-row items-center gap-6 w-full">
               <div class="flex flex-col items-center md:items-start gap-3">
-                <a class={`${btnPrimary} px-6 py-2.5 text-base`} href={homeUrl}>
+                <button type="button" data-open-auth class={`${btnPrimary} px-6 py-2.5 text-base`}>
                   Continue Free Prep
-                </a>
+                </button>
                 <div class="flex flex-col gap-1 items-center md:items-start">
                   <span
                     class="px-3 py-1 rounded-full bg-brand/10 text-brand body-medium border-2 border-brand font-semibold"
@@ -562,13 +563,14 @@ const btnOutline =
                           </p>
                         </div>
                         <p class="body-large text-text-muted">{step.desc}</p>
-                        <a
+                        <button
+                          type="button"
+                          data-open-auth
                           class={`${btnOutline} w-[220px] justify-center px-5 py-2 text-sm`}
-                          href={homeUrl}
                         >
                           {step.btn}
                           <span set:html={ICONS.arrow.replace(/fill="white"/, 'fill="#005cb8"')} />
-                        </a>
+                        </button>
                       </div>
                     </div>
                     <div class="hidden md:flex justify-center order-2">
@@ -716,8 +718,10 @@ const btnOutline =
                   the first attempt.
                 </p>
               </div>
-              <div
-                class="flex flex-col md:flex-row items-center justify-center gap-5 py-4"
+              <button
+                type="button"
+                data-open-auth
+                class="flex flex-col md:flex-row items-center justify-center gap-5 py-4 w-full cursor-pointer"
               >
                 <img
                   src={`${base}/guarantee-badge.webp`}
@@ -734,7 +738,7 @@ const btnOutline =
                     No risk, just results.
                   </p>
                 </div>
-              </div>
+              </button>
             </div>
             <div
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2"
@@ -773,13 +777,14 @@ const btnOutline =
                       ))}
                     </ul>
                     <hr class="border-t border-[#CDD7E1] my-3" />
-                    <a
+                    <button
+                      type="button"
+                      data-open-auth
                       class={`${btnPrimary} w-full justify-center px-6 py-2.5 text-base`}
-                      href={examUrl(plan.slug)}
                     >
                       Start for FREE
                       <span set:html={ICONS.arrow} />
-                    </a>
+                    </button>
                   </div>
                 ))
               }
@@ -919,11 +924,15 @@ const btnOutline =
          here (it gets the header's persistent CTA instead). -->
     <div class="sticky bottom-0 z-50 left-0 right-0">
       <div class="md:hidden bg-white w-full py-3 px-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-        <a class={`${btnPrimary} shimmer-btn w-full justify-center px-6 py-2.5 text-base`} href={homeUrl}>
+        <button
+          type="button"
+          data-open-auth
+          class={`${btnPrimary} shimmer-btn w-full justify-center px-6 py-2.5 text-base`}
+        >
           <span class="btn-shimmer-overlay"></span>
           <span class="relative z-[1]">Start 3-day FREE trial</span>
           <span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
-        </a>
+        </button>
       </div>
     </div>
 
@@ -993,6 +1002,89 @@ const btnOutline =
         </div>
       </div>
     </footer>
+
+    <!-- ============ Auth modal (login-screen.tsx) ============ -->
+    <!-- Desktop: centered modal (packages/auth/src/ui/modal.tsx). Mobile
+         (<768px, same breakpoint as everywhere else on this page): a
+         full-screen panel sliding in from the right (ui/drawer-sheet.tsx)
+         — NOT a bottom sheet, confirmed against source: drawerVariants.right
+         is x:"100%"→x:0, square corners, no rounding.
+         Every CTA button on this page opens this same modal (real site:
+         all of them call the same goToLogin()) instead of navigating away
+         directly. On a valid 10-digit number this redirects to the real
+         clearcutoff.in rather than faking an OTP screen — the real product
+         actually sends an SMS/WhatsApp OTP at that point and this static
+         site has no backend to do that for real, so pretending to would be
+         showing a "OTP sent" message that's untrue. -->
+    <div id="auth-overlay" class="fixed inset-0 z-[1000] hidden">
+      <div id="auth-backdrop" class="absolute inset-0 bg-black/0 transition-opacity duration-200"></div>
+      <div class="absolute inset-0 flex md:items-center md:justify-center overflow-y-auto">
+        <div
+          id="auth-panel"
+          class="bg-white w-full min-h-full md:min-h-0 md:max-w-[400px] md:rounded-lg md:shadow-xl md:my-8 flex flex-col transition-all duration-300 ease-in-out translate-x-full opacity-0 md:translate-x-0 md:-translate-y-5"
+        >
+          <div class="flex flex-col items-center gap-5 px-6 py-8 md:px-8">
+            <img src={`${base}/main-logo.svg`} alt="Clear Cutoff" width="140" height="30" />
+            <div class="text-center">
+              <h2 class="heading-large font-semibold text-text-normal">Start your exam preparation</h2>
+              <p class="body-medium text-text-subtle mt-1">Videos • Notes • PYQs</p>
+            </div>
+
+            <div class="w-full">
+              <div class="flex items-center gap-2 mb-2">
+                <span set:html={ICONS.indiaFlag} />
+                <span class="body-medium font-semibold text-text-subtle">Mobile or WhatsApp Number</span>
+              </div>
+              <div
+                id="auth-input-wrap"
+                class="flex items-center gap-2 rounded-lg border-2 px-4 py-3 transition-colors"
+                style="border-color:color-mix(in srgb, #6c849d 18%, transparent); background-color:color-mix(in srgb, #6c849d 12%, transparent);"
+              >
+                <span class="font-bold text-text-normal">+91 -</span>
+                <input
+                  id="auth-phone-input"
+                  type="tel"
+                  inputmode="numeric"
+                  maxlength="10"
+                  placeholder="10-digit number"
+                  autocomplete="tel"
+                  class="flex-1 bg-transparent outline-none body-large text-text-normal placeholder:text-text-muted"
+                />
+              </div>
+              <p class="body-small text-text-muted italic mt-3 text-center">
+                Used only for login &amp; exam updates. No spam.<br />OTP will be sent via SMS and WhatsApp.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              id="auth-submit"
+              disabled
+              class="w-full rounded-full bg-brand text-white font-semibold py-3 text-base disabled:opacity-50 disabled:pointer-events-none transition hover:bg-[#006fdb]"
+            >
+              <span id="auth-submit-label">Start FREE Preparation</span>
+            </button>
+
+            <span class="px-3 py-1 rounded-full bg-brand/10 text-[#006bd1] body-medium border-2 border-brand font-semibold">
+              3-day FREE Trial
+            </span>
+            <div class="flex items-center gap-1.5">
+              <span set:html={ICONS.fire} />
+              <span class="body-small text-text-muted">No card or payment required</span>
+            </div>
+
+            <p class="body-medium text-text-normal text-center block md:hidden">
+              Trusted by <span class="text-brand font-semibold">10,000+</span> students to clear TET exams across India
+            </p>
+
+            <p class="body-small text-text-muted text-center">
+              By Signing Up, I agree to <a href={`${homeUrl}/terms-and-conditions`} class="text-brand">Terms &amp; Conditions</a> and
+              <a href={`${homeUrl}/privacy-policy`} class="text-brand">Privacy Policy</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
       // ---- Shimmer CTA buttons: idle until first interaction, then cycle
@@ -1218,6 +1310,94 @@ const btnOutline =
           ".faq-tab[data-tab].text-text-normal",
         );
         if (activeTab) positionTabIndicator(activeTab);
+      });
+
+      // ---- Auth modal (mirrors login-screen.tsx's phone-entry step) ----
+      // Desktop = centered modal, mobile (<768px) = full-screen right-slide
+      // panel — both are the SAME markup, just repositioned by Tailwind's
+      // md: breakpoint; only the open/close transition direction differs.
+      const authOverlay = document.getElementById("auth-overlay");
+      const authBackdrop = document.getElementById("auth-backdrop");
+      const authPanel = document.getElementById("auth-panel");
+      const authInput = document.getElementById("auth-phone-input") as HTMLInputElement | null;
+      const authInputWrap = document.getElementById("auth-input-wrap");
+      const authSubmit = document.getElementById("auth-submit") as HTMLButtonElement | null;
+      const authSubmitLabel = document.getElementById("auth-submit-label");
+
+      function openAuthModal() {
+        if (!authOverlay || !authPanel || !authBackdrop) return;
+        authOverlay.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        // Force a synchronous style/layout flush before changing the
+        // transition classes, so the browser paints the "hidden" removal
+        // first and the transform/opacity change gets picked up as a
+        // separate style change to transition FROM — otherwise the two
+        // changes can get batched into one paint and the transition never
+        // plays. Reading a layout property does this reliably; unlike
+        // requestAnimationFrame, it doesn't depend on the tab actually
+        // being visible/rendering (rAF can stall in backgrounded/automated
+        // tabs, which is what this replaced).
+        void authOverlay.offsetHeight;
+        authBackdrop.classList.remove("bg-black/0");
+        authBackdrop.classList.add("bg-black/50");
+        authPanel.classList.remove("translate-x-full", "opacity-0", "md:-translate-y-5");
+      }
+
+      function closeAuthModal() {
+        if (!authOverlay || !authPanel || !authBackdrop) return;
+        authBackdrop.classList.add("bg-black/0");
+        authBackdrop.classList.remove("bg-black/50");
+        authPanel.classList.add("translate-x-full", "opacity-0", "md:-translate-y-5");
+        document.body.style.overflow = "";
+        setTimeout(() => authOverlay.classList.add("hidden"), 300);
+      }
+
+      document.querySelectorAll<HTMLElement>("[data-open-auth]").forEach((el) => {
+        el.addEventListener("click", openAuthModal);
+      });
+      authBackdrop?.addEventListener("click", closeAuthModal);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && authOverlay && !authOverlay.classList.contains("hidden")) closeAuthModal();
+      });
+
+      // Phone input: digits only, live border/bg color (matches MainInput's
+      // resting/focused/valid states), enable submit at exactly 10 digits,
+      // then redirect to the real site — see the comment on the modal markup
+      // for why this doesn't fake an OTP step.
+      function setInputState(state: "resting" | "focused" | "valid") {
+        if (!authInputWrap) return;
+        const styles = {
+          resting: "border-color:color-mix(in srgb, #6c849d 18%, transparent); background-color:color-mix(in srgb, #6c849d 12%, transparent);",
+          focused: "border-color:#0083ff; background-color:rgba(0,123,255,0.1);",
+          valid: "border-color:#28a745; background-color:rgba(40,167,69,0.1);",
+        };
+        authInputWrap.setAttribute("style", `display:flex;align-items:center;gap:0.5rem;border-radius:0.5rem;border-width:2px;padding:0.75rem 1rem;transition:color 0.15s,background-color 0.15s,border-color 0.15s;${styles[state]}`);
+      }
+
+      let autoSubmitted = false;
+      authInput?.addEventListener("input", () => {
+        authInput.value = authInput.value.replace(/\D/g, "").slice(0, 10);
+        const isValid = authInput.value.length === 10;
+        if (authSubmit) authSubmit.disabled = !isValid;
+        setInputState(isValid ? "valid" : "focused");
+        if (isValid && !autoSubmitted) {
+          autoSubmitted = true;
+          if (authSubmitLabel) authSubmitLabel.textContent = "Redirecting…";
+          setTimeout(() => {
+            window.location.href = "https://clearcutoff.in";
+          }, 500);
+        }
+      });
+      authInput?.addEventListener("focus", () => {
+        if (authInput.value.length !== 10) setInputState("focused");
+      });
+      authInput?.addEventListener("blur", () => {
+        if (authInput.value.length !== 10) setInputState("resting");
+      });
+      authSubmit?.addEventListener("click", () => {
+        if (authInput && authInput.value.length === 10) {
+          window.location.href = "https://clearcutoff.in";
+        }
       });
     </script>
   </body>
