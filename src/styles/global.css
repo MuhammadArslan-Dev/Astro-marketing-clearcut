@@ -131,3 +131,55 @@
 .faq-answer {
 	display: none;
 }
+
+/*
+ * "Shimmer" CTA buttons (header desktop CTA + mobile floating bar) —
+ * reimplements ContinueFreeButton's showShimmer cycle from
+ * useButtonArrowAnimation.ts + button-shimmer-overlay.tsx: idle until the
+ * visitor's first click/scroll/keydown/touch, then forever alternates a
+ * 4.5s arrow-nudge phase and a 2.5s light-sweep shimmer phase. JS toggles
+ * .btn-phase-icon / .btn-phase-shimmer on .shimmer-btn; before that first
+ * interaction neither class is present, which correctly matches the
+ * source's "idle" phase (arrow visible but static, no shimmer).
+ */
+.shimmer-btn {
+	position: relative;
+	overflow: hidden;
+}
+.shimmer-btn .btn-shimmer-overlay {
+	display: none;
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.7) 50%, rgba(255, 255, 255, 0) 100%);
+	pointer-events: none;
+	z-index: 0;
+}
+.shimmer-btn.btn-phase-shimmer .btn-shimmer-overlay {
+	display: block;
+	animation: shimmer-sweep 3s linear infinite;
+}
+.shimmer-btn.btn-phase-icon .btn-arrow {
+	animation: arrow-nudge 0.8s ease-in-out infinite alternate;
+}
+@keyframes shimmer-sweep {
+	from {
+		transform: translateX(-150%);
+	}
+	to {
+		transform: translateX(150%);
+	}
+}
+@keyframes arrow-nudge {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(6px);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.shimmer-btn.btn-phase-shimmer .btn-shimmer-overlay,
+	.shimmer-btn.btn-phase-icon .btn-arrow {
+		animation: none;
+	}
+}

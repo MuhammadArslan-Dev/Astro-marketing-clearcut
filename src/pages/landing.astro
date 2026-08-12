@@ -354,11 +354,12 @@ const btnOutline =
           }
         </div>
         <a
-          class={`${btnPrimary} hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
+          class={`${btnPrimary} shimmer-btn hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
           href={homeUrl}
         >
-          Continue Free Prep
-          <span set:html={ICONS.arrow} />
+          <span class="btn-shimmer-overlay"></span>
+          <span class="relative z-[1]">Continue Free Prep</span>
+          <span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
         </a>
       </nav>
     </header>
@@ -384,7 +385,6 @@ const btnOutline =
               <div class="flex flex-col items-center md:items-start gap-3">
                 <a class={`${btnPrimary} px-6 py-2.5 text-base`} href={homeUrl}>
                   Continue Free Prep
-                  <span set:html={ICONS.arrow} />
                 </a>
                 <div class="flex flex-col gap-1 items-center md:items-start">
                   <span
@@ -559,6 +559,7 @@ const btnOutline =
                           href={homeUrl}
                         >
                           {step.btn}
+                          <span set:html={ICONS.arrow.replace(/fill="white"/, 'fill="#005cb8"')} />
                         </a>
                       </div>
                     </div>
@@ -904,6 +905,20 @@ const btnOutline =
       </section>
     </main>
 
+    <!-- ============ Floating mobile CTA bar ============ -->
+    <!-- Mirrors global/FloatingButton.tsx: md:hidden, so it exists only
+         below the 768px breakpoint — desktop has no equivalent element
+         here (it gets the header's persistent CTA instead). -->
+    <div class="sticky bottom-0 z-50 left-0 right-0">
+      <div class="md:hidden bg-white w-full py-3 px-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+        <a class={`${btnPrimary} shimmer-btn w-full justify-center px-6 py-2.5 text-base`} href={homeUrl}>
+          <span class="btn-shimmer-overlay"></span>
+          <span class="relative z-[1]">Start 3-day FREE trial</span>
+          <span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
+        </a>
+      </div>
+    </div>
+
     <!-- ============ Footer ============ -->
     <footer>
       <div
@@ -916,7 +931,8 @@ const btnOutline =
             class="flex items-center gap-2 text-white body-large font-medium"
           >
             <span set:html={ICONS.phone} />
-            7210708599
+            <span class="md:hidden">Phone</span>
+            <span class="hidden md:inline">7210708599</span>
           </a>
           <a
             href="https://wa.me/917210708599"
@@ -971,6 +987,41 @@ const btnOutline =
     </footer>
 
     <script>
+      // ---- Shimmer CTA buttons: idle until first interaction, then cycle
+      // 4.5s arrow-nudge / 2.5s shimmer forever (mirrors useButtonArrowAnimation.ts) ----
+      const shimmerBtns = document.querySelectorAll<HTMLElement>(".shimmer-btn");
+      if (shimmerBtns.length) {
+        let shimmerStarted = false;
+        const interactionEvents = ["click", "scroll", "keydown", "touchstart"];
+        const startShimmerAnimations = () => {
+          if (shimmerStarted) return;
+          shimmerStarted = true;
+          shimmerBtns.forEach((btn) => {
+            const ICON_MS = 4500;
+            const SHIMMER_MS = 2500;
+            let phase: "icon" | "shimmer" = "icon";
+            const applyPhase = () => {
+              btn.classList.toggle("btn-phase-icon", phase === "icon");
+              btn.classList.toggle("btn-phase-shimmer", phase === "shimmer");
+            };
+            applyPhase();
+            const loop = () => {
+              setTimeout(
+                () => {
+                  phase = phase === "icon" ? "shimmer" : "icon";
+                  applyPhase();
+                  loop();
+                },
+                phase === "icon" ? ICON_MS : SHIMMER_MS,
+              );
+            };
+            loop();
+          });
+          interactionEvents.forEach((e) => window.removeEventListener(e, startShimmerAnimations));
+        };
+        interactionEvents.forEach((e) => window.addEventListener(e, startShimmerAnimations, { passive: true }));
+      }
+
       // ---- Header: shadow after 10px scroll (mirrors useScrollShadow(10)) ----
       const header = document.getElementById("site-header");
       const onHeaderScroll = () => {
@@ -1029,14 +1080,23 @@ const btnOutline =
             ".step-badge-desktop",
           );
           const line = el.querySelector<HTMLElement>(".step-line-mobile");
-          for (const badge of [badgeMobile, badgeDesktop]) {
-            if (!badge) continue;
-            badge.classList.toggle("bg-brand", isActive);
-            badge.classList.toggle("text-white", isActive);
-            badge.classList.toggle("bg-gray-300", !isActive);
-            badge.classList.toggle("text-gray-600", !isActive);
-            badge.classList.toggle("scale-110", isActive);
-            badge.classList.toggle("shadow-lg", isActive);
+          // Mobile badge: only bg/text swap (32px, no scale/shadow — matches
+          // HowItWorkStep.tsx's separate, smaller "MOBILE BADGE" markup).
+          if (badgeMobile) {
+            badgeMobile.classList.toggle("bg-brand", isActive);
+            badgeMobile.classList.toggle("text-white", isActive);
+            badgeMobile.classList.toggle("bg-gray-300", !isActive);
+            badgeMobile.classList.toggle("text-gray-700", !isActive);
+          }
+          // Desktop badge: bg/text swap PLUS scale-up + shadow (40px "CENTER
+          // STEPPER" markup — the more prominent treatment is desktop-only).
+          if (badgeDesktop) {
+            badgeDesktop.classList.toggle("bg-brand", isActive);
+            badgeDesktop.classList.toggle("text-white", isActive);
+            badgeDesktop.classList.toggle("bg-gray-300", !isActive);
+            badgeDesktop.classList.toggle("text-gray-600", !isActive);
+            badgeDesktop.classList.toggle("scale-110", isActive);
+            badgeDesktop.classList.toggle("shadow-lg", isActive);
           }
           if (line) {
             line.classList.toggle("bg-brand", isActive);
