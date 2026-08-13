@@ -271,6 +271,14 @@ One real bug caught while wiring this up: the icon-right wrapper `<span class="b
 
 Re-verified in-browser after this pass: header/hero CTAs, all 3 step buttons, all 3 pricing-card buttons on `/go/landing` unchanged visually; clicking a `data-open-auth` button still opens the modal; same check repeated on `/go/hi/landing`. The floating mobile CTA bar (`md:hidden`, invisible at desktop width) was checked structurally via `Astro.slots`-driven class inspection plus a forced-visible screenshot, since this environment's browser-resize tool doesn't actually change `window.innerWidth`.
 
+## Bug fix: auth modal didn't close on outside click
+
+User reported the login modal would open but clicking outside it did nothing. Root cause: the modal markup has three stacked layers inside `#auth-overlay` — `#auth-backdrop` (the dimming layer, with the actual `closeAuthModal` click listener) and, on top of it in DOM/paint order, a second `absolute inset-0` div that exists purely to flex-center `#auth-panel` on desktop. That centering div covers the *entire* screen too, not just the panel — so on desktop, clicking in the empty space around the centered panel hits that wrapper div, not the backdrop underneath it, and the backdrop's click listener (a sibling, not an ancestor) never fires. Click events don't pass through to elements behind the topmost hit.
+
+Fix: gave the wrapper an id (`#auth-click-outside`) and added its own click listener, guarded by `e.target === authClickOutside` so a click that bubbles up from inside the panel (`e.target` would be some descendant of the panel, not the wrapper itself) doesn't also close it. Left the original backdrop listener in place too — harmless, and it's still the one that fires on mobile where the panel is full-screen and there's no gap to click through to the wrapper anyway.
+
+Verified via direct DOM dispatch in the browser (`elementFromPoint` at a coordinate outside the panel confirmed it resolves to the wrapper, not the backdrop, before the fix): after the fix, a click outside the panel closes the modal (`#auth-overlay` gets `hidden` back, `#auth-panel` re-gains its closed-state transform classes), and a click inside the panel leaves it open. Rebuilt clean.
+
 ## Still open / TODO
 
 - [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern; `src/i18n/copy.ts`'s `pricingPoints()`/`htetCopy()` helpers already take an `examName` param, and buttons are now just `<Button>` calls, so both should extend to new exams with minimal new code)

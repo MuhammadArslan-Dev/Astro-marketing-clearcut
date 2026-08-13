@@ -764,7 +764,7 @@ const ICONS: Record<string, string> = {
 		     mobile floating CTA button's real source (FloatingButton.tsx). -->
 		<div id="auth-overlay" class="fixed inset-0 z-[1000] hidden">
 			<div id="auth-backdrop" class="absolute inset-0 bg-black/0 transition-opacity duration-200"></div>
-			<div class="absolute inset-0 flex md:items-center md:justify-center overflow-y-auto">
+			<div id="auth-click-outside" class="absolute inset-0 flex md:items-center md:justify-center overflow-y-auto">
 				<div
 					id="auth-panel"
 					class="bg-white w-full min-h-full md:min-h-0 md:max-w-[400px] md:rounded-[10px] md:shadow-xl md:my-8 flex flex-col transition-all duration-300 ease-in-out translate-x-full opacity-0 md:translate-x-0 md:-translate-y-5"
@@ -1077,6 +1077,7 @@ const ICONS: Record<string, string> = {
 			// md: breakpoint; only the open/close transition direction differs.
 			const authOverlay = document.getElementById("auth-overlay");
 			const authBackdrop = document.getElementById("auth-backdrop");
+			const authClickOutside = document.getElementById("auth-click-outside");
 			const authPanel = document.getElementById("auth-panel");
 			const authInput = document.getElementById("auth-phone-input") as HTMLInputElement | null;
 			const authInputWrap = document.getElementById("auth-input-wrap");
@@ -1111,6 +1112,17 @@ const ICONS: Record<string, string> = {
 				btn.addEventListener("click", openAuthModal);
 			});
 			authBackdrop?.addEventListener("click", closeAuthModal);
+			// The centering wrapper (#auth-click-outside) sits on top of the
+			// backdrop and covers the full screen too — on desktop the panel
+			// only fills its center, so a click in the empty space around it
+			// lands on this wrapper, not the backdrop underneath, and the
+			// backdrop's own listener above never fires. Only close when the
+			// click target IS the wrapper itself (not a bubbled click from the
+			// panel or anything inside it), so clicking inside the modal still
+			// works normally.
+			authClickOutside?.addEventListener("click", (e) => {
+				if (e.target === authClickOutside) closeAuthModal();
+			});
 			window.addEventListener("keydown", (e) => {
 				if (e.key === "Escape" && authOverlay && !authOverlay.classList.contains("hidden")) closeAuthModal();
 			});
