@@ -223,6 +223,25 @@ Since the browser couldn't be trusted for a clean comparison, verification was d
 
 Rebuilt (`npm run build`, clean pass) and re-verified visually after every batch of fixes — accordion still opens/closes and animates correctly, comparison table now shows plain checkmarks, pricing cards are visibly tighter, auth modal input is now an underline field, footer is more compact. No regressions found.
 
+## Multi-language support — `/go/landing`, `/go/hi/landing`, `/go/htet`, `/go/hi/htet`
+
+User asked for real EN/HI locale routing: no prefix → English, `/hi` prefix → Hindi. Requirements confirmed with the user up front: both `landing` and `htet` pages get a Hindi version, and a header language switcher (not just bare URL routing).
+
+**Routing:** Astro's rest-param optional-segment syntax — `src/pages/[...locale]/landing.astro` and `src/pages/[...locale]/htet.astro`, each with `getStaticPaths()` returning exactly two entries: `{ params: { locale: undefined } }` (builds `/landing`) and `{ params: { locale: "hi" } }` (builds `/hi/landing`). One file, two pages — no markup duplication. (First attempt used `[[locale]]`, which looks like Astro's optional-param syntax by analogy with Next.js, but Astro's route generator only special-cases `[...spread]` — a bare `[[param]]` throws `Missing parameter` at build time for the no-segment case. Renamed the folder to `[...locale]` and it worked immediately.)
+
+**Content:** all real English + Hindi copy lives in `src/i18n/copy.ts`, pulled directly from the actual Turborepo source (`D:\clearcutoff-projects\clearcut-master`) via 8 parallel research agents — next-intl's `messages/{en,hi}.json` for shared nav/footer/common strings, and each section component's own `Record<Locale, ...>` content object for everything else (hero, features, how-it-works, comparison table, pricing, FAQ — all 20 Q&A pairs across 4 tabs, verbatim). Nothing machine-translated. Two real findings from that research, both preserved as comments in the code so they aren't "fixed" by a future pass:
+- The `body-large`-etc. font-weight bug fixed earlier this session made the "3-day free trial" pill's real width visible again — unrelated but worth noting the fix compounds correctly across locales too.
+- The auth modal (`packages/auth/src/screens/login-screen.tsx`) and the mobile floating CTA button (`FloatingButton.tsx`) have **no Hindi translation in the real source at all** — verified directly, not an oversight. Both stay hardcoded English on the Hindi pages too, matching real production behavior exactly.
+- Brand terms (PYQ, Clear Cutoff, Teaching Exams, exam short-names like HTET/CTET, Indian state names) stay in Latin script even in Hindi strings — that's how the real site does it, not a translation gap.
+- Hindi word order genuinely differs from English in several headings (e.g. the brand-colored `{examName}` span sits near the END of the Hindi hero sentence, not the start like English) — each locale's string is authored independently in `copy.ts` rather than sharing a template with an interpolation slot, since the two languages don't share sentence structure.
+
+**Language switcher:** a small "EN | हिं" toggle in the header (both pages), active locale in brand blue, inactive as a real `<a>` link to the equivalent page in the other locale (computed per-page, e.g. `/go/landing` ↔ `/go/hi/landing`) — works with JS disabled, correct for SEO.
+
+**SEO:** added `hreflang="en"`/`"hi"`/`"x-default"` alternate link tags in `<head>`, matching the real site's pattern. The `<title>`/meta description stay English-only on both locales — confirmed via the real `generateMetadata()` in `page.tsx`, which takes no locale parameter at all, so this isn't a shortcut, it's what production actually ships.
+
+Verified in-browser: both locale variants of both pages render correctly (Devanagari text, correctly-reordered brand spans, translated nav/footer/FAQ-tabs), the FAQ accordion opens/closes correctly on the Hindi page (JS keys off stable English `data-tab`/`data-tab-group` values like `"refund"`, not the translated labels, so no script changes were needed), and the language switcher actually navigates to the paired URL. Production build is clean and generates all 5 expected files (`landing.html`, `hi/landing.html`, `htet.html`, `hi/htet.html`, `index.html`).
+
 ## Still open / TODO
 
-- [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern)
+- [ ] Build out more marketing pages under `src/pages/` (CTET, REET, etc. — same `staticExams.ts` pattern; `src/i18n/copy.ts`'s `pricingPoints()`/`htetCopy()` helpers already take an `examName` param so they should extend to new exams with minimal new code)
+- [ ] The language switcher's translation-availability isn't checked at the type level — if a future page is added without both locale variants, the switcher would need a way to hide the missing side rather than link to a 404

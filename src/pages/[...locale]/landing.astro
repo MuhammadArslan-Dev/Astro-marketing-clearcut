@@ -1,0 +1,1187 @@
+---
+import "../../styles/global.css";
+import { landing, chrome, guaranteeBadge, pricingPoints, trustedByHeading, type Locale } from "../../i18n/copy";
+
+// Optional single dynamic segment (Astro's [[param]] syntax) — one file
+// generates BOTH /landing (locale param absent) and /hi/landing (locale
+// param = "hi"), so the ~1000 lines of markup below never have to be
+// duplicated between locales. Only the two paths listed here get built.
+export function getStaticPaths() {
+	return [{ params: { locale: undefined } }, { params: { locale: "hi" } }];
+}
+
+const locale: Locale = Astro.params.locale === "hi" ? "hi" : "en";
+const t = landing[locale];
+const c = chrome[locale];
+const gb = guaranteeBadge[locale];
+
+// Static asset paths must go through BASE_URL (see src/pages/index.astro
+// for why) — normalized here since its trailing slash isn't guaranteed.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const homeUrl = "https://clearcutoff.in";
+const coursesUrl = "https://clearcutoff.in/teaching";
+
+// This page is a from-scratch, "100% match" rebuild of the real production
+// homepage at clearcutoff.in (Next.js app, apps/landing/src/components/pages/LandingPage.tsx).
+// Section order, copy, and real data (pricing, exam logos, FAQ content) were
+// pulled directly from that app's source rather than guessed — including the
+// Hindi copy in src/i18n/copy.ts, extracted from each section's real
+// Record<Locale, ...> content object. See PROJECT_PLAN.md for the mapping.
+
+const switcherUrls = { en: `${base}/landing`, hi: `${base}/hi/landing` };
+const enUrl = new URL(switcherUrls.en, Astro.site).href;
+const hiUrl = new URL(switcherUrls.hi, Astro.site).href;
+
+// Exam short names + Indian state names are NOT translated in the real
+// source (confirmed via research) — same data for both locales.
+const S3_LOGOS =
+	"https://cc-teaching-content-ind.s3.dualstack.ap-south-1.amazonaws.com/exam%20logo/Webp";
+const trustedLogos = [
+	{ name: "HTET", state: "Haryana", logo: `${S3_LOGOS}/htet.webp` },
+	{ name: "ugcnet", state: "Haryana", logo: `${S3_LOGOS}/htet.webp` },
+	{ name: "REET", state: "Rajasthan", logo: `${S3_LOGOS}/reet.webp` },
+	{ name: "CTET", state: "India", logo: `${S3_LOGOS}/ctet.webp` },
+	{ name: "UPTET", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+	{ name: "HPTET", state: "Himachal Pradesh", logo: `${S3_LOGOS}/hptet.webp` },
+	{ name: "UP PGT", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+	{ name: "UP TGT", state: "Uttar Pradesh", logo: `${S3_LOGOS}/uptet.webp` },
+	{ name: "UGC", state: "India", logo: `${S3_LOGOS}/UGC.webp` },
+];
+
+const navItems = [
+	{ label: c.navPricing, id: "pricing-section" },
+	{ label: c.navFeatures, id: "features-section" },
+	{ label: c.navFaqs, id: "faqs-section" },
+];
+
+const features = t.features.items;
+const steps = t.howItWorks.steps;
+const comparisonRows = t.comparison.rows;
+
+const pricingPlans = ["HTET", "CTET", "REET"].map((exam) => ({
+	exam,
+	points: pricingPoints(locale, exam),
+}));
+
+const faqFilters = t.faq.filters;
+const faqs = t.faq.items;
+const trustedByLine = trustedByHeading(locale, t.trustedByExamLabel);
+
+const footerPageLinks = [
+	{ label: c.footerPolicy, href: `${homeUrl}/privacy-policy` },
+	{ label: c.footerTerms, href: `${homeUrl}/terms-and-conditions` },
+	{ label: c.footerRefund, href: `${homeUrl}/refund-policy` },
+	{ label: c.footerContact, href: `${homeUrl}/contact-us` },
+];
+
+const ICONS: Record<string, string> = {
+	cloud:
+		'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h.79a4.5 4.5 0 1 1 0 9z"></path></svg>',
+	flag: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="3"></line></svg>',
+	clock:
+		'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5"></path><path d="M9 1h6"></path></svg>',
+	fire: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 17c1.38 0 2.5-1.5 2.5-2.5 0-1.38-1.5-2-1.5-3.5a2 2 0 011-1.5c1.5 1 3 3.5 3 5.5a5 5 0 01-10 0c0-2.5 1.5-4.5 3-6"></path></svg>',
+	star: '<svg width="16" height="16" viewBox="0 0 24 24" fill="#f5a623"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
+	starGreen:
+		'<svg width="16" height="16" viewBox="0 0 24 24" fill="#00A251"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
+	indiaFlag:
+		'<svg width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg"><rect width="20" height="14" rx="2" fill="#fff"/><path d="M0 2a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v2.67H0V2Z" fill="#FF9933"/><path d="M0 9.33h20V12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V9.33Z" fill="#128807"/><circle cx="10" cy="7" r="1.6" fill="none" stroke="#000088" stroke-width="0.3"/><circle cx="10" cy="7" r="0.25" fill="#000088"/></svg>',
+	check:
+		'<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+	checkSmall:
+		'<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="0.5" y="0.5" width="15" height="15" rx="7.5" fill="#00A251"/><path d="M11.3346 5.5L6.7513 10.0833L4.66797 8" stroke="white" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+	// Plain outlined checkmark (no circle/fill) — used only in the
+	// comparison table, which uses a different check style than the
+	// filled-circle CheckIconGreen badge used in pricing checklists.
+	checkOutline:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+	fireFilled:
+		'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.176 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133.998a5.27 5.27 0 01-.31-1.825 5.266 5.266 0 011.539-3.716 3.75 3.75 0 013.951 5.715z" clip-rule="evenodd"></path></svg>',
+	cross:
+		'<svg class="h-5 w-5 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>',
+	arrow:
+		'<svg width="12" height="16" viewBox="0 0 12 16" fill="none"><path d="M0.195254 3.19526C0.455603 2.93491 0.878264 2.93491 1.13861 3.19526L4.99994 7.05659C5.52064 7.57729 5.52064 8.42163 4.99994 8.94233L1.13861 12.8046C0.878264 13.065 0.455603 13.065 0.195254 12.8046C-0.0650791 12.5443 -0.0650901 12.1216 0.195254 11.8613L4.05756 7.99995L0.195254 4.13765C-0.0648142 3.87738 -0.0647266 3.45558 0.195254 3.19526ZM4.36225 3.19526C4.62259 2.93492 5.04428 2.93493 5.30463 3.19526L9.16693 7.05659C9.68761 7.57727 9.68757 8.42163 9.16693 8.94233L5.30463 12.8046C5.0443 13.0646 4.6225 13.0647 4.36225 13.0647C4.1019 13.0647 4.1019 12.1216 4.36225 11.8613L8.22455 7.99995L4.36225 4.13765C4.10196 3.87734 4.10205 3.45562 4.36225 3.19526Z" fill="white"/></svg>',
+	chevron:
+		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>',
+	phone:
+		'<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M6.82884 7.82624C8.18829 11.5348 9.59569 13.0145 13.1761 14.5906L11.6244 16.7698C7.51303 14.8014 5.46522 11.4834 4.50077 8.89404L6.82884 7.82624Z" fill="white"/><path d="M7.96905 2.70813C8.69599 2.70529 9.24871 3.31017 9.19916 3.9951C9.12118 5.07296 9.2042 5.85062 9.42775 6.81455C9.55055 7.34404 9.27274 7.88182 8.83127 8.2282C8.23623 8.69507 7.78163 9.28996 7.42033 9.80206C6.91954 10.5119 5.19615 10.4609 4.81502 9.6876C4.03175 8.09844 3.50092 5.17066 4.64473 3.1926C4.8244 2.88189 5.18615 2.71901 5.56101 2.71755L7.96905 2.70813Z" fill="white"/><path d="M19.0035 14.4678C19.0939 13.7866 18.5246 13.1956 17.7986 13.1597C16.6562 13.1032 15.8487 12.9318 14.8624 12.6063C14.3205 12.4275 13.7218 12.6233 13.3046 12.9955C12.7423 13.4973 12.0623 13.8519 11.4805 14.1291C10.6742 14.5132 10.5205 16.1352 11.2875 16.5855C12.8638 17.511 15.8776 18.3607 18.0945 17.5262C18.4427 17.3951 18.6574 17.0756 18.704 16.7243L19.0035 14.4678Z" fill="white"/></svg>',
+	whatsapp:
+		'<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.017 2C6.492 2 2 6.477 2 11.985c0 1.98.579 3.827 1.579 5.383L2 22l4.756-1.554a10.03 10.03 0 0 0 5.261 1.485h.004c5.524 0 10.017-4.477 10.017-9.985C22 6.477 17.524 2 12.017 2zm0 18.29h-.003a8.29 8.29 0 0 1-4.221-1.153l-.303-.18-3.14 1.026 1.05-3.06-.198-.315a8.24 8.24 0 0 1-1.276-4.42c0-4.567 3.734-8.28 8.325-8.28 4.591 0 8.325 3.713 8.325 8.28 0 4.567-3.734 8.28-8.325 8.28z"/></svg>',
+	facebook:
+		'<svg width="10" height="20" viewBox="0 0 10 20" fill="white"><path d="M2.014 3.865V6.613H0V9.973H2.014V19.959H6.148V9.974H8.923C8.923 9.974 9.183 8.363 9.309 6.601H6.165V4.303C6.165 3.96 6.615 3.498 7.061 3.498H9.315V0H6.251C1.911 0 2.014 3.363 2.014 3.865Z"/></svg>',
+	linkedin:
+		'<svg width="20" height="20" viewBox="0 0 20 20" fill="white"><path d="M19.959 11.693V19.072H15.681V12.187C15.681 10.457 15.062 9.277 13.514 9.277C12.332 9.277 11.628 10.073 11.319 10.842C11.206 11.117 11.177 11.5 11.177 11.885V19.072H6.897C6.897 19.072 6.955 7.412 6.897 6.203H11.177V8.027L11.149 8.069H11.177V8.027C11.745 7.152 12.76 5.901 15.033 5.901C17.848 5.901 19.959 7.741 19.959 11.693ZM2.421 0C0.958 0 0 0.96 0 2.223C0 3.458 0.93 4.447 2.365 4.447H2.393C3.886 4.447 4.813 3.458 4.813 2.223C4.787 0.96 3.887 0 2.422 0H2.421ZM0.254 19.072H4.532V6.203H0.254V19.072Z"/></svg>',
+	instagram:
+		'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>',
+};
+
+const btnPrimary =
+	"relative inline-flex items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap bg-brand text-white transition hover:bg-[#006fdb] active:brightness-90";
+const btnOutline =
+	"inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap border-2 border-brand text-[#005cb8] bg-transparent transition hover:bg-brand/[0.09]";
+---
+
+<html lang={locale}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href={`${base}/favicon.ico`} />
+		<link rel="icon" type="image/png" href={`${base}/favicon.png`} />
+		<meta name="generator" content={Astro.generator} />
+
+		<title>{t.metaTitle}</title>
+		<meta name="description" content={t.metaDescription} />
+		<link rel="canonical" href={Astro.url.href} />
+		<link rel="alternate" hreflang="en" href={enUrl} />
+		<link rel="alternate" hreflang="hi" href={hiUrl} />
+		<link rel="alternate" hreflang="x-default" href={enUrl} />
+
+		<meta property="og:type" content="website" />
+		<meta property="og:title" content={t.metaTitle} />
+		<meta property="og:description" content={t.metaDescription} />
+		<meta property="og:url" content={Astro.url.href} />
+		<meta name="twitter:card" content="summary" />
+	</head>
+	<body class="m-0 p-0 font-sans text-text-normal bg-white antialiased">
+		<!-- ============ Header ============ -->
+		<header
+			id="site-header"
+			class="bg-white sticky top-0 z-50 transition-shadow duration-300"
+		>
+			<nav
+				class="h-16 max-w-7xl mx-auto px-4 flex items-center justify-between"
+			>
+				<a href={homeUrl} class="flex items-center">
+					<img
+						src={`${base}/main-logo.svg`}
+						alt="Clear Cutoff"
+						width="190"
+						height="37"
+					/>
+				</a>
+				<div id="nav-menu" class="relative hidden md:flex items-center gap-2">
+					<div
+						id="nav-indicator"
+						class="absolute bottom-0 h-0.5 bg-brand rounded-full transition-all duration-300 ease-out pointer-events-none opacity-0"
+					>
+					</div>
+					{
+						navItems.map((item) => (
+							<button
+								type="button"
+								data-scroll-to={item.id}
+								class="nav-link relative px-4 py-2 cursor-pointer z-10 text-text-subtle hover:text-brand transition-colors duration-300 body-medium font-semibold"
+							>
+								{item.label}
+							</button>
+						))
+					}
+				</div>
+				<div class="flex items-center gap-3">
+					<div class="flex items-center gap-1.5 body-medium font-semibold" aria-label="Language">
+						<a href={switcherUrls.en} class={locale === "en" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>EN</a>
+						<span class="text-border-subtle">|</span>
+						<a href={switcherUrls.hi} class={locale === "hi" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>हिं</a>
+					</div>
+					<button
+						type="button"
+						data-open-auth
+						class={`${btnPrimary} shimmer-btn hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
+					>
+						<span class="btn-shimmer-overlay"></span>
+						<span class="relative z-[1]">{c.continueFree}</span>
+						<span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
+					</button>
+				</div>
+			</nav>
+		</header>
+
+		<main>
+			<!-- ============ Hero ============ -->
+			<section class="py-4 md:py-16 px-3">
+				<div
+					class="max-w-[1100px] mx-auto grid md:grid-cols-11 gap-10 md:gap-12 items-center"
+				>
+					<div
+						class="md:col-span-6 order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left"
+					>
+						<h1 class="heading-xlarge font-semibold text-text-normal mb-4" set:html={t.hero.heading} />
+						<p class="body-large text-text-subtle mb-8 max-w-lg">
+							{t.hero.subtitle}
+						</p>
+						<div class="flex flex-col md:flex-row items-center gap-6 w-full">
+							<div class="flex flex-col items-center md:items-start gap-3">
+								<button type="button" data-open-auth class={`${btnPrimary} px-6 py-2.5 text-base`}>
+									{c.continueFree}
+								</button>
+								<div class="flex flex-col gap-1 items-center md:items-start">
+									<span
+										class="px-3 py-1 rounded-full bg-brand/10 text-brand body-medium border-2 border-brand font-semibold"
+									>
+										{t.hero.trial}
+									</span>
+									<div class="flex items-center gap-1.5">
+										<span set:html={ICONS.fire} />
+										<span class="body-small text-text-muted">{t.hero.noCard}</span>
+									</div>
+								</div>
+							</div>
+							<div
+								class="flex items-center gap-2 bg-[#f8fafc] px-3 h-10 rounded-md"
+							>
+								<span set:html={ICONS.star} />
+								<span class="heading-large font-semibold">4.9</span>
+								<span class="body-xsmall text-text-muted">{t.hero.ratingCaption}</span>
+							</div>
+						</div>
+					</div>
+					<div
+						class="md:col-span-5 order-1 md:order-2 flex justify-center items-center"
+					>
+						<img
+							src={`${base}/hero-img.webp`}
+							alt="Student preparing for exams with pen and paper"
+							width="320"
+							height="320"
+							loading="eager"
+						/>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ Trusted-by logo marquee ============ -->
+			<!-- The scrolling track deliberately breaks out of the 1100px content
+			     container and runs full page width (edge-to-edge) — confirmed
+			     against the live production page, where the marquee track's
+			     overflow-hidden wrapper spans the full viewport width while the
+			     heading/CTA text around it stay inside the normal 1100px column.
+			     Only the heading and CTA line are wrapped in the max-w container. -->
+			<section class="py-4">
+				<div class="max-w-[1100px] mx-auto px-3">
+					<h2 class="heading-large font-semibold text-center text-text-normal" set:html={trustedByLine} />
+				</div>
+				<div class="overflow-hidden my-6">
+					<div class="flex items-center gap-14 w-max animate-marquee">
+						{
+							[...trustedLogos, ...trustedLogos].map((exam) => (
+								<div class="flex flex-col items-center gap-4 flex-shrink-0 w-[88px]">
+									<img
+										src={exam.logo}
+										alt={`${exam.name} logo`}
+										width="88"
+										height="88"
+										class="grayscale opacity-70"
+										loading="lazy"
+									/>
+									<span class="body-large font-semibold text-text-normal text-center">
+										{exam.name}
+									</span>
+									<span class="body-xsmall text-text-muted text-center">
+										{exam.state}
+									</span>
+								</div>
+							))
+						}
+					</div>
+				</div>
+				<div class="max-w-[1100px] mx-auto px-3">
+					<div
+						class="flex flex-col md:flex-row items-center justify-center gap-3 text-center"
+					>
+						<p class="heading-small font-semibold text-text-subtle" set:html={t.exploreOtherExams} />
+						<a class={`${btnOutline} px-3 py-1 text-sm`} href={coursesUrl}>{t.seeAllCourses}</a>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ Features ============ -->
+			<section id="features-section" class="bg-[#f5f7fb] scroll-mt-16">
+				<div class="max-w-[1120px] mx-auto px-3 py-4 md:py-8">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+						<div>
+							<p
+								class="text-brand body-medium font-semibold mb-1 text-center md:text-left"
+							>
+								{t.features.eyebrow}
+							</p>
+							<h2
+								class="display-medium font-semibold text-center md:text-left mb-3"
+								set:html={t.features.heading}
+							/>
+							<p class="heading-small font-normal text-text-subtle text-center md:text-left">
+								{t.features.description}
+							</p>
+						</div>
+						<div class="flex flex-col gap-3">
+							{
+								features.map((f) => (
+									<div class="flex items-center gap-4 p-2">
+										<div class="w-14 h-14 rounded-md flex justify-center items-center border-2 border-gray-200 bg-white shrink-0 text-text-normal">
+											<span set:html={ICONS[f.icon]} />
+										</div>
+										<div>
+											<h3 class="heading-small font-semibold mb-1">
+												{f.title}
+											</h3>
+											<p class="body-medium text-text-subtle">{f.desc}</p>
+										</div>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ How it works ============ -->
+			<section class="bg-white">
+				<div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
+					<div class="flex flex-col gap-12">
+						<div class="text-center">
+							<p class="text-brand body-medium font-semibold mb-1">
+								{t.howItWorks.eyebrow}
+							</p>
+							<h2 class="display-medium font-semibold mb-3" set:html={t.howItWorks.heading} />
+							<p class="heading-small font-normal text-text-subtle">
+								{t.howItWorks.description}
+							</p>
+						</div>
+						<div class="max-w-4xl mx-auto space-y-16">
+							{
+								steps.map((step) => (
+									<div
+										id={step.id}
+										data-step={step.id}
+										class="how-it-work-step grid md:grid-cols-[1fr_auto_1fr] items-center gap-6 md:gap-20"
+									>
+										<div class="order-2 md:order-1 flex items-start gap-3">
+											<div class="md:hidden w-8 flex flex-col gap-2 h-full items-center">
+												<div class="step-badge-mobile rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold mt-1 transition bg-gray-300 text-gray-700">
+													{step.number}
+												</div>
+												<div class="step-line-mobile h-[220px] w-0.5 bg-gray-300" />
+											</div>
+											<div class="flex flex-col gap-5">
+												<div>
+													<h3 class="heading-xlarge font-semibold mb-5">
+														{step.title}
+													</h3>
+													<p class="heading-medium font-semibold text-text-normal">
+														{step.subtitle}
+													</p>
+												</div>
+												<p class="body-large text-text-muted">{step.desc}</p>
+												<button
+													type="button"
+													data-open-auth
+													class={`${btnOutline} w-[250px] justify-center px-6 py-2 text-base min-h-[44px]`}
+												>
+													{step.btn}
+													<span set:html={ICONS.arrow.replace(/fill="white"/, 'fill="#005cb8"')} />
+												</button>
+											</div>
+										</div>
+										<div class="hidden md:flex justify-center order-2">
+											<div class="step-badge-desktop w-10 h-10 rounded-full flex items-center justify-center font-bold shadow transition-all duration-300 bg-gray-300 text-gray-600">
+												{step.number}
+											</div>
+										</div>
+										<div class="order-3">
+											<img
+												src={`${base}/${step.image}`}
+												alt={`Step ${step.number}: ${step.title}`}
+												width="370"
+												height="370"
+												loading="lazy"
+											/>
+										</div>
+									</div>
+								))
+							}
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ Comparison ============ -->
+			<section id="comparison-section" class="bg-[#f5f7fb]">
+				<div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
+					<div class="flex flex-col gap-12">
+						<div class="text-center">
+							<p class="text-brand body-medium font-semibold mb-1">
+								{t.comparison.eyebrow}
+							</p>
+							<h2 class="display-medium font-semibold mb-3" set:html={t.comparison.heading} />
+							<p class="heading-small font-normal text-text-subtle">
+								{t.comparison.description}
+							</p>
+						</div>
+						<div class="space-y-4">
+							<div class="w-full overflow-x-auto">
+								<div
+									class="min-w-[720px] mx-auto max-w-[950px] bg-[#f8fafc] rounded-2xl px-2 py-3"
+								>
+									<div class="flex w-full rounded-xl">
+										<div class="flex-[1_1_35%] min-w-[180px]">
+											<h3
+												class="heading-large font-semibold text-center mb-4 h-[42px] flex items-end justify-center"
+											>
+												{t.comparison.colComparison}
+											</h3>
+											<div class="bg-white py-2 rounded-l-xl">
+												{
+													comparisonRows.map((row, i) => (
+														<div
+															class={`flex items-center justify-center gap-3 flex-row-reverse min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+														>
+															{row.labelIcon && (
+																<span set:html={ICONS.checkOutline} />
+															)}
+															<span class="heading-small font-semibold">
+																{row.label}
+															</span>
+														</div>
+													))
+												}
+											</div>
+										</div>
+										<div class="flex-[1_1_35%] min-w-[180px]">
+											<h3
+												class="heading-large font-semibold text-center mb-4 h-[42px] flex items-end justify-center"
+											>
+												{t.comparison.colCoaching}
+											</h3>
+											<div class="bg-white py-2">
+												{
+													comparisonRows.map((row, i) => (
+														<div
+															class={`flex items-center gap-3 min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+														>
+															<span set:html={ICONS.cross} />
+															<span class="heading-small">{row.coaching}</span>
+														</div>
+													))
+												}
+											</div>
+										</div>
+										<div
+											class="flex-[1_1_35%] min-w-[240px] rounded-xl outline outline-4 outline-blue-500"
+										>
+											<div class="mb-2 flex justify-center pt-3">
+												<img
+													src={`${base}/main-logo.svg`}
+													alt="Clear Cutoff"
+													width="200"
+													height="48"
+												/>
+											</div>
+											<div class="bg-white py-2 rounded-r-xl">
+												{
+													comparisonRows.map((row, i) => (
+														<div
+															class={`flex items-center gap-3 min-h-[60px] px-2 lg:px-6 ${i !== 0 ? "border-t border-gray-200" : ""}`}
+														>
+															<span set:html={ICONS.checkOutline} />
+															<span class="heading-small" set:html={row.app} />
+														</div>
+													))
+												}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="flex items-center justify-center gap-1 text-[#566c82]">
+								<span set:html={ICONS.fireFilled} />
+								<p class="heading-small text-[#566c82]">
+									{t.comparison.note}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ Pricing ============ -->
+			<section id="pricing-section" class="bg-white scroll-mt-16">
+				<div class="max-w-[1100px] mx-auto px-3 py-4 md:py-8">
+					<div class="flex flex-col gap-10">
+						<div class="space-y-4">
+							<div class="text-center">
+								<p class="text-brand body-medium font-semibold mb-1">
+									{t.pricing.eyebrow}
+								</p>
+								<h2 class="display-small md:display-medium font-semibold mb-3" set:html={t.pricing.heading} />
+								<p class="heading-small font-normal text-text-subtle">
+									{t.pricing.description}
+								</p>
+							</div>
+							<button
+								type="button"
+								data-open-auth
+								class="flex flex-col md:flex-row items-center justify-center gap-5 py-6 w-full cursor-pointer"
+							>
+								<img
+									src={`${base}/guarantee-badge.webp`}
+									alt="Success assurance guarantee badge"
+									width="150"
+									height="120"
+								/>
+								<div class="text-center md:text-left">
+									<p class="heading-medium font-semibold text-text-normal" set:html={gb.title} />
+									<p class="body-large text-text-muted">
+										{gb.subtitle}
+									</p>
+								</div>
+							</button>
+						</div>
+						<div
+							class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-2"
+						>
+							{
+								pricingPlans.map((plan) => (
+									<div class="w-full max-w-[390px] mx-auto rounded-[6px] border border-border-subtle bg-white p-2">
+										<h3 class="heading-xlarge font-semibold text-center mb-3">
+											{locale === "hi" ? `${plan.exam} परीक्षा` : `${plan.exam} exam`}
+										</h3>
+										<hr class="border-t border-[#CDD7E1] my-0" />
+										<div class="bg-[#006bd1]/[0.09] rounded-lg h-[72px] flex items-center justify-center gap-5 my-3">
+											<span class="heading-2xlarge font-semibold text-text-normal">
+												<span class="heading-xlarge font-semibold mr-1">₹</span>99
+											</span>
+											<span class="body-large text-text-subtle">
+												{t.pricing.priceSubscription}
+											</span>
+										</div>
+										<ul class="flex flex-col gap-3">
+											{plan.points.map((p) => (
+												<li class="flex items-start gap-3">
+													<span
+														class="flex-none mt-0.5"
+														set:html={ICONS.check}
+													/>
+													<span>
+														<span class="block body-large font-semibold text-text-normal">
+															{p.title}
+														</span>
+														<span class="block body-medium text-text-subtle">
+															{p.desc}
+														</span>
+													</span>
+												</li>
+											))}
+										</ul>
+										<hr class="border-t border-[#CDD7E1] my-3" />
+										<button
+											type="button"
+											data-open-auth
+											class={`${btnPrimary} w-full justify-center px-6 py-2.5 text-base`}
+										>
+											{t.pricing.startForFree}
+											<span set:html={ICONS.arrow} />
+										</button>
+									</div>
+								))
+							}
+						</div>
+						<div class="flex flex-col gap-8 max-w-lg mx-auto text-center">
+							<p class="heading-large font-semibold" set:html={t.pricing.studentsHeadline} />
+							<p class="body-medium text-text-subtle">
+								{t.pricing.studentsSubtext}
+							</p>
+							<p class="flex items-center justify-center gap-1.5 body-large">
+								<span set:html={ICONS.starGreen} />
+								<span class="font-semibold text-xl">4.9+</span> {t.pricing.ratingSuffix}
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- ============ FAQ ============ -->
+			<section id="faqs-section" class="bg-[#f5f7fb] scroll-mt-16">
+				<div class="max-w-[1100px] mx-auto px-3 py-10 md:py-16">
+					<div class="flex flex-col gap-6">
+						<div class="max-w-3xl mx-auto text-center">
+							<p class="text-brand body-medium font-semibold mb-2">
+								{t.faq.eyebrow}
+							</p>
+							<h2 class="display-medium font-semibold mb-3" set:html={t.faq.heading} />
+							<p class="body-large text-text-subtle">
+								{t.faq.description}
+							</p>
+						</div>
+
+						<div
+							class="max-w-lg mx-auto bg-white rounded-xl border-2 border-brand p-6 space-y-4"
+						>
+							<h3 class="heading-small font-semibold">
+								{t.faq.introTitle}
+							</h3>
+							<p class="body-medium text-text-subtle">
+								{t.faq.introIntro}
+							</p>
+							<ul class="space-y-2 body-medium list-disc pl-5 text-text-subtle">
+								{t.faq.introBullets.map((b) => <li set:html={b} />)}
+							</ul>
+							<p class="body-medium text-text-subtle">
+								{t.faq.introFooter}
+							</p>
+						</div>
+
+						<div class="max-w-3xl mx-auto w-full">
+							<div
+								id="faq-tabs"
+								class="relative flex bg-brand-dark py-1 overflow-x-auto px-1 -mx-3 md:mx-0 md:rounded-full"
+							>
+								<div
+									id="faq-tab-indicator"
+									class="absolute bg-white rounded-full shadow-sm transition-[left,width,top,height] duration-300 ease-[cubic-bezier(0.33,1.1,0.68,1)]"
+								>
+								</div>
+								{
+									faqFilters.map((f, i) => (
+										<button
+											type="button"
+											data-tab={f.key}
+											class={`faq-tab relative px-4 py-1.5 flex justify-center items-center rounded-full whitespace-nowrap z-10 cursor-pointer body-medium ${i === 0 ? "font-semibold text-text-normal" : "text-white"}`}
+										>
+											{f.label}
+										</button>
+									))
+								}
+							</div>
+						</div>
+
+						<div
+							id="faq-list"
+							class="flex flex-col gap-3 max-w-[900px] mx-auto w-full"
+						>
+							{
+								faqFilters.map((f, fi) =>
+									faqs[f.key].map((item, qi) => (
+										<div
+											class="faq-item rounded-xl border-2 px-5 py-4 cursor-pointer bg-white border-gray-200 transition-colors duration-300"
+											data-tab-group={f.key}
+											data-open={fi === 0 && qi === 0 ? "true" : "false"}
+											style={fi === 0 ? "" : "display:none"}
+										>
+											<button
+												type="button"
+												class="faq-question w-full flex items-center justify-between gap-4 text-left cursor-pointer"
+											>
+												<span class="heading-small font-semibold">
+													{item.q}
+												</span>
+												<span class="faq-chevron flex-none w-6 h-6 text-text-normal transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+													<span set:html={ICONS.chevron} />
+												</span>
+											</button>
+											<div
+												class="faq-answer body-medium text-text-normal pt-2"
+												set:html={item.a}
+											/>
+										</div>
+									)),
+								)
+							}
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<!-- ============ Floating mobile CTA bar ============ -->
+		<!-- Mirrors global/FloatingButton.tsx: md:hidden, so it exists only
+		     below the 768px breakpoint — desktop has no equivalent element
+		     here (it gets the header's persistent CTA instead). -->
+		<div class="sticky bottom-0 z-50 left-0 right-0">
+			<div class="md:hidden bg-white w-full py-3 px-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+				<button
+					type="button"
+					data-open-auth
+					class={`${btnPrimary} shimmer-btn w-full justify-center px-6 py-2.5 text-base`}
+				>
+					<span class="btn-shimmer-overlay"></span>
+					<span class="relative z-[1]">{t.floatingCta}</span>
+					<span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
+				</button>
+			</div>
+		</div>
+
+		<!-- ============ Footer ============ -->
+		<footer>
+			<div
+				class="w-full py-3 min-h-[88px] flex flex-col justify-center items-center gap-2"
+				style="background-color:#006BD1"
+			>
+				<div class="flex gap-6 md:gap-14">
+					<a
+						href="tel:7210708599"
+						class="flex items-center gap-2 text-white body-large"
+					>
+						<span set:html={ICONS.phone} />
+						<span class="md:hidden">{c.footerPhone}</span>
+						<span class="hidden md:inline">7210708599</span>
+					</a>
+					<a
+						href="https://wa.me/917210708599"
+						target="_blank"
+						rel="noopener"
+						class="flex items-center gap-2 text-white body-large"
+					>
+						<span set:html={ICONS.whatsapp} />
+						{c.footerWhatsapp}
+					</a>
+				</div>
+				<div
+					class="w-full flex flex-wrap gap-4 text-white text-center md:gap-6 lg:flex-row flex-col-reverse justify-between items-center px-5 md:px-20"
+				>
+					<div class="min-w-[200px]">
+						<p class="body-small">{c.footerRights}</p>
+					</div>
+					<div class="flex flex-wrap gap-6 justify-center">
+						{
+							footerPageLinks.map((link) => (
+								<a href={link.href} class="text-white body-large font-medium">
+									{link.label}
+								</a>
+							))
+						}
+					</div>
+					<div class="flex justify-center gap-6 min-w-[200px]">
+						<a
+							href="https://www.instagram.com/clearcutoff_teaching"
+							target="_blank"
+							rel="noopener"
+							aria-label="Instagram"
+							set:html={ICONS.instagram}
+						/>
+						<a
+							href="https://www.facebook.com/people/Clear-Cutoff-Teaching/61573525911878"
+							target="_blank"
+							rel="noopener"
+							aria-label="Facebook"
+							set:html={ICONS.facebook}
+						/>
+						<a
+							href="https://www.linkedin.com/company/clear-cutoff"
+							target="_blank"
+							rel="noopener"
+							aria-label="LinkedIn"
+							set:html={ICONS.linkedin}
+						/>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- ============ Auth modal (login-screen.tsx) ============ -->
+		<!-- Desktop: centered modal (packages/auth/src/ui/modal.tsx). Mobile
+		     (<768px, same breakpoint as everywhere else on this page): a
+		     full-screen panel sliding in from the right (ui/drawer-sheet.tsx)
+		     — NOT a bottom sheet, confirmed against source: drawerVariants.right
+		     is x:"100%"→x:0, square corners, no rounding.
+		     Every CTA button on this page opens this same modal (real site:
+		     all of them call the same goToLogin()) instead of navigating away
+		     directly. On a valid 10-digit number this redirects to the real
+		     clearcutoff.in rather than faking an OTP screen — the real product
+		     actually sends an SMS/WhatsApp OTP at that point and this static
+		     site has no backend to do that for real, so pretending to would be
+		     showing a "OTP sent" message that's untrue.
+		     Stays English on BOTH locales — verified directly against
+		     packages/auth/src/screens/login-screen.tsx: it has no i18n
+		     machinery at all (no useLocale, no CONTENT/Record<Locale,...>),
+		     every string is a plain hardcoded English literal in the real
+		     source regardless of which locale page renders it. Same for the
+		     mobile floating CTA button's real source (FloatingButton.tsx). -->
+		<div id="auth-overlay" class="fixed inset-0 z-[1000] hidden">
+			<div id="auth-backdrop" class="absolute inset-0 bg-black/0 transition-opacity duration-200"></div>
+			<div class="absolute inset-0 flex md:items-center md:justify-center overflow-y-auto">
+				<div
+					id="auth-panel"
+					class="bg-white w-full min-h-full md:min-h-0 md:max-w-[400px] md:rounded-[10px] md:shadow-xl md:my-8 flex flex-col transition-all duration-300 ease-in-out translate-x-full opacity-0 md:translate-x-0 md:-translate-y-5"
+				>
+					<div class="flex flex-col items-center gap-5 px-7 pt-7 pb-10 md:px-10 md:pt-3 md:pb-6">
+						<img src={`${base}/main-logo.svg`} alt="Clear Cutoff" width="140" height="30" />
+						<div class="text-center">
+							<h2 class="heading-medium font-semibold text-text-normal">Start your exam preparation</h2>
+							<p class="body-medium text-text-subtle mt-1">Videos • Notes • PYQs</p>
+						</div>
+
+						<div class="w-full">
+							<div class="flex items-center gap-2 mb-2">
+								<span set:html={ICONS.indiaFlag} />
+								<span class="body-small font-semibold text-text-subtle">Mobile or WhatsApp Number</span>
+							</div>
+							<div
+								id="auth-input-wrap"
+								class="flex items-center gap-2 border-b-2 px-3 py-1.5 transition-colors"
+								style="border-color:color-mix(in srgb, #6c849d 18%, transparent); background-color:color-mix(in srgb, #6c849d 12%, transparent);"
+							>
+								<span class="font-semibold text-text-normal">+91 -</span>
+								<input
+									id="auth-phone-input"
+									type="tel"
+									inputmode="numeric"
+									maxlength="10"
+									placeholder="10-digit number"
+									autocomplete="tel"
+									class="flex-1 bg-transparent outline-none body-large text-text-normal placeholder:text-text-muted"
+								/>
+							</div>
+							<p class="body-small text-text-muted italic mt-3 text-center">
+								Used only for login &amp; exam updates. No spam.<br />OTP will be sent via SMS and WhatsApp.
+							</p>
+						</div>
+
+						<button
+							type="button"
+							id="auth-submit"
+							disabled
+							class="w-full min-h-[44px] rounded-full bg-brand text-white font-semibold py-3 text-base disabled:opacity-50 disabled:pointer-events-none transition hover:bg-[#006fdb]"
+						>
+							<span id="auth-submit-label">Start FREE Preparation</span>
+						</button>
+
+						<span class="px-3 py-0.5 rounded-full bg-brand/[0.09] text-[#006bd1] body-medium border border-brand font-semibold">
+							3-day FREE Trial
+						</span>
+						<div class="flex items-center gap-1.5">
+							<span set:html={ICONS.fire} />
+							<span class="body-small text-[#566c82]">No card or payment required</span>
+						</div>
+
+						<p class="body-medium text-text-muted text-center block md:hidden">
+							Trusted by <span class="text-brand font-semibold">10,000+</span> students to clear TET exams across India
+						</p>
+
+						<p class="body-medium text-text-muted text-center">
+							By Signing Up, I agree to <a href={`${homeUrl}/terms-and-conditions`} class="text-brand">Terms &amp; Conditions</a> and
+							<a href={`${homeUrl}/privacy-policy`} class="text-brand">Privacy Policy</a>.
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// ---- Shimmer CTA buttons: idle until first interaction, then cycle
+			// 4.5s arrow-nudge / 2.5s shimmer forever (mirrors useButtonArrowAnimation.ts) ----
+			const shimmerBtns = document.querySelectorAll<HTMLElement>(".shimmer-btn");
+			if (shimmerBtns.length) {
+				let shimmerStarted = false;
+				const interactionEvents = ["click", "scroll", "keydown", "touchstart"];
+				const startShimmerAnimations = () => {
+					if (shimmerStarted) return;
+					shimmerStarted = true;
+					shimmerBtns.forEach((btn) => {
+						const ICON_MS = 4500;
+						const SHIMMER_MS = 2500;
+						let phase: "icon" | "shimmer" = "icon";
+						const applyPhase = () => {
+							btn.classList.toggle("btn-phase-icon", phase === "icon");
+							btn.classList.toggle("btn-phase-shimmer", phase === "shimmer");
+						};
+						applyPhase();
+						const cycle = () => {
+							phase = phase === "icon" ? "shimmer" : "icon";
+							applyPhase();
+							setTimeout(cycle, phase === "icon" ? ICON_MS : SHIMMER_MS);
+						};
+						setTimeout(cycle, ICON_MS);
+					});
+					interactionEvents.forEach((ev) => window.removeEventListener(ev, startShimmerAnimations));
+				};
+				interactionEvents.forEach((ev) =>
+					window.addEventListener(ev, startShimmerAnimations, { once: true, passive: true }),
+				);
+			}
+
+			// ---- Header: scroll shadow, nav-link sliding indicator + smooth scroll ----
+			const header = document.getElementById("site-header");
+			const onHeaderScroll = () => {
+				if (!header) return;
+				header.classList.toggle("shadow-md", window.scrollY > 4);
+			};
+			window.addEventListener("scroll", onHeaderScroll);
+			onHeaderScroll();
+
+			const navIndicator = document.getElementById("nav-indicator");
+			const navLinks = document.querySelectorAll<HTMLElement>(".nav-link");
+			function positionNavIndicator(el: HTMLElement | null) {
+				if (!navIndicator) return;
+				if (!el) {
+					navIndicator.style.opacity = "0";
+					return;
+				}
+				navIndicator.style.opacity = "1";
+				navIndicator.style.left = `${el.offsetLeft}px`;
+				navIndicator.style.width = `${el.offsetWidth}px`;
+			}
+			navLinks.forEach((link) => {
+				link.addEventListener("mouseenter", () => positionNavIndicator(link));
+				link.addEventListener("click", () => {
+					const id = link.getAttribute("data-scroll-to");
+					if (id) document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+				});
+			});
+			document.getElementById("nav-menu")?.addEventListener("mouseleave", () => positionNavIndicator(null));
+
+			// ---- Marquee: CSS-driven, no JS needed beyond what's in global.css ----
+
+			// ---- How-it-works: scroll-driven active-step highlighting ----
+			// Port of useActiveStep — finds the step closest to 20% down the
+			// viewport and marks it active; mobile gets a plain badge-color
+			// swap, desktop additionally scales + shadows the badge.
+			const stepEls = document.querySelectorAll<HTMLElement>(".how-it-work-step");
+			const onStepScroll = () => {
+				if (!stepEls.length) return;
+				const target = window.innerHeight * 0.2;
+				let closest: HTMLElement | null = null;
+				let closestDist = Infinity;
+				stepEls.forEach((el) => {
+					const rect = el.getBoundingClientRect();
+					const dist = Math.abs(rect.top - target);
+					if (rect.top < window.innerHeight && rect.bottom > 0 && dist < closestDist) {
+						closestDist = dist;
+						closest = el;
+					}
+				});
+				stepEls.forEach((el) => {
+					const isActive = el === closest;
+					const badgeMobile = el.querySelector<HTMLElement>(".step-badge-mobile");
+					const badgeDesktop = el.querySelector<HTMLElement>(".step-badge-desktop");
+					const line = el.querySelector<HTMLElement>(".step-line-mobile");
+					if (badgeMobile) {
+						badgeMobile.classList.toggle("bg-brand", isActive);
+						badgeMobile.classList.toggle("text-white", isActive);
+						badgeMobile.classList.toggle("bg-gray-300", !isActive);
+						badgeMobile.classList.toggle("text-gray-700", !isActive);
+					}
+					if (badgeDesktop) {
+						badgeDesktop.classList.toggle("bg-brand", isActive);
+						badgeDesktop.classList.toggle("text-white", isActive);
+						badgeDesktop.classList.toggle("bg-gray-300", !isActive);
+						badgeDesktop.classList.toggle("text-gray-600", !isActive);
+						badgeDesktop.classList.toggle("scale-110", isActive);
+						badgeDesktop.classList.toggle("shadow-lg", isActive);
+					}
+					if (line) {
+						line.classList.toggle("bg-brand", isActive);
+						line.classList.toggle("bg-gray-300", !isActive);
+					}
+				});
+			};
+			window.addEventListener("scroll", onStepScroll);
+			onStepScroll();
+
+			// Sets an item's open/closed state. Animates the answer's height from
+			// 0 to its measured scrollHeight (and back) plus an opacity fade —
+			// approximating the source's framer-motion spring (stiffness 120,
+			// damping 18 for height, 0.2s fade for opacity) since CSS can't
+			// transition to/from `height: auto`. Uses a forced synchronous
+			// reflow (`void answer.offsetHeight`) rather than
+			// requestAnimationFrame to kick off the transition — rAF was found
+			// unreliable earlier in this project (see auth modal below).
+			// `animate: false` is used for instant sets (initial load, tab
+			// switches) where no visible transition should play.
+			const tabsContainer = document.getElementById("faq-tabs");
+			const tabIndicator = document.getElementById("faq-tab-indicator");
+			const tabs = document.querySelectorAll<HTMLElement>(".faq-tab");
+			const faqItems = document.querySelectorAll<HTMLElement>(".faq-item");
+
+			function positionTabIndicator(tab: HTMLElement) {
+				if (!tabsContainer || !tabIndicator) return;
+				const containerRect = tabsContainer.getBoundingClientRect();
+				const rect = tab.getBoundingClientRect();
+				tabIndicator.style.left = `${rect.left - containerRect.left}px`;
+				tabIndicator.style.width = `${rect.width}px`;
+				tabIndicator.style.top = `${rect.top - containerRect.top}px`;
+				tabIndicator.style.height = `${rect.height}px`;
+			}
+
+			function setFaqItemState(
+				item: HTMLElement,
+				open: boolean,
+				animate: boolean,
+			) {
+				item.setAttribute("data-open", open ? "true" : "false");
+				item.classList.toggle("border-brand", open);
+				item.classList.toggle("border-gray-200", !open);
+				const answer = item.querySelector<HTMLElement>(".faq-answer");
+				const chevron = item.querySelector<HTMLElement>(".faq-chevron");
+				if (chevron) chevron.style.transform = open ? "rotate(180deg)" : "";
+				if (!answer) return;
+
+				if (!animate) {
+					answer.style.transition = "none";
+					answer.style.height = open ? "auto" : "0px";
+					answer.style.opacity = open ? "1" : "0";
+					void answer.offsetHeight;
+					answer.style.transition = "";
+					return;
+				}
+
+				if (open) {
+					const target = answer.scrollHeight;
+					answer.style.height = "0px";
+					answer.style.opacity = "0";
+					void answer.offsetHeight;
+					answer.style.height = `${target}px`;
+					answer.style.opacity = "1";
+					const onEnd = (e: TransitionEvent) => {
+						if (e.propertyName !== "height") return;
+						answer.style.height = "auto";
+						answer.removeEventListener("transitionend", onEnd);
+					};
+					answer.addEventListener("transitionend", onEnd);
+				} else {
+					const current = answer.getBoundingClientRect().height;
+					answer.style.height = `${current}px`;
+					void answer.offsetHeight;
+					answer.style.height = "0px";
+					answer.style.opacity = "0";
+				}
+			}
+
+			function setActiveTab(key: string) {
+				tabs.forEach((tab) => {
+					const isActive = tab.getAttribute("data-tab") === key;
+					tab.classList.toggle("text-text-normal", isActive);
+					tab.classList.toggle("font-semibold", isActive);
+					tab.classList.toggle("text-white", !isActive);
+					if (isActive) positionTabIndicator(tab);
+				});
+				faqItems.forEach((item) => {
+					const matches = item.getAttribute("data-tab-group") === key;
+					item.style.display = matches ? "" : "none";
+					setFaqItemState(item, false, false);
+				});
+				const firstItem = document.querySelector<HTMLElement>(
+					`.faq-item[data-tab-group="${key}"]`,
+				);
+				if (firstItem) setFaqItemState(firstItem, true, false);
+			}
+
+			tabs.forEach((tab) => {
+				tab.addEventListener("click", () => {
+					const key = tab.getAttribute("data-tab");
+					if (key) setActiveTab(key);
+				});
+			});
+
+			faqItems.forEach((item) => {
+				const question = item.querySelector(".faq-question");
+				question?.addEventListener("click", () => {
+					const isOpen = item.getAttribute("data-open") === "true";
+					const group = item.getAttribute("data-tab-group");
+					document
+						.querySelectorAll<HTMLElement>(
+							`.faq-item[data-tab-group="${group}"]`,
+						)
+						.forEach((el) => {
+							if (el !== item && el.getAttribute("data-open") === "true") {
+								setFaqItemState(el, false, true);
+							}
+						});
+					setFaqItemState(item, !isOpen, true);
+				});
+			});
+
+			// Initial state: first tab active, first question open, answer visible.
+			if (tabs.length) {
+				positionTabIndicator(tabs[0]);
+				const firstItem = document.querySelector<HTMLElement>(
+					'.faq-item[data-tab-group="refund"]',
+				);
+				if (firstItem) setFaqItemState(firstItem, true, false);
+			}
+			window.addEventListener("resize", () => {
+				const activeTab = document.querySelector<HTMLElement>(
+					".faq-tab[data-tab].text-text-normal",
+				);
+				if (activeTab) positionTabIndicator(activeTab);
+			});
+
+			// ---- Auth modal (mirrors login-screen.tsx's phone-entry step) ----
+			// Desktop = centered modal, mobile (<768px) = full-screen right-slide
+			// panel — both are the SAME markup, just repositioned by Tailwind's
+			// md: breakpoint; only the open/close transition direction differs.
+			const authOverlay = document.getElementById("auth-overlay");
+			const authBackdrop = document.getElementById("auth-backdrop");
+			const authPanel = document.getElementById("auth-panel");
+			const authInput = document.getElementById("auth-phone-input") as HTMLInputElement | null;
+			const authInputWrap = document.getElementById("auth-input-wrap");
+			const authSubmit = document.getElementById("auth-submit") as HTMLButtonElement | null;
+			const authSubmitLabel = document.getElementById("auth-submit-label");
+
+			function openAuthModal() {
+				if (!authOverlay || !authPanel || !authBackdrop) return;
+				authOverlay.classList.remove("hidden");
+				document.body.style.overflow = "hidden";
+				// Force a synchronous style/layout flush before changing the
+				// transition classes, so the browser paints the "hidden" removal
+				// first and the transform/opacity change gets picked up as a
+				// separate style change to transition FROM — otherwise the two
+				// changes coalesce into one frame and no transition plays.
+				void authOverlay.offsetHeight;
+				authBackdrop.classList.remove("bg-black/0");
+				authBackdrop.classList.add("bg-black/50");
+				authPanel.classList.remove("translate-x-full", "opacity-0", "md:-translate-y-5");
+			}
+
+			function closeAuthModal() {
+				if (!authOverlay || !authPanel || !authBackdrop) return;
+				authBackdrop.classList.remove("bg-black/50");
+				authBackdrop.classList.add("bg-black/0");
+				authPanel.classList.add("translate-x-full", "opacity-0", "md:-translate-y-5");
+				document.body.style.overflow = "";
+				setTimeout(() => authOverlay.classList.add("hidden"), 300);
+			}
+
+			document.querySelectorAll<HTMLElement>("[data-open-auth]").forEach((btn) => {
+				btn.addEventListener("click", openAuthModal);
+			});
+			authBackdrop?.addEventListener("click", closeAuthModal);
+			window.addEventListener("keydown", (e) => {
+				if (e.key === "Escape" && authOverlay && !authOverlay.classList.contains("hidden")) closeAuthModal();
+			});
+
+			function setInputState(state: "resting" | "focused" | "valid") {
+				if (!authInputWrap) return;
+				const styles = {
+					resting: "border-color:color-mix(in srgb, #6c849d 18%, transparent); background-color:color-mix(in srgb, #6c849d 12%, transparent);",
+					focused: "border-color:#0083ff; background-color:rgba(0,123,255,0.1);",
+					valid: "border-color:#28a745; background-color:rgba(40,167,69,0.1);",
+				};
+				authInputWrap.setAttribute("style", `display:flex;align-items:center;gap:0.5rem;border-width:0 0 2px 0;padding:0.375rem 0.75rem;transition:color 0.15s,background-color 0.15s,border-color 0.15s;${styles[state]}`);
+			}
+
+			let autoSubmitted = false;
+			authInput?.addEventListener("input", () => {
+				if (!authInput || !authSubmit) return;
+				authInput.value = authInput.value.replace(/\D/g, "").slice(0, 10);
+				const isValid = authInput.value.length === 10;
+				authSubmit.disabled = !isValid;
+				setInputState(isValid ? "valid" : "focused");
+				if (isValid && !autoSubmitted) {
+					autoSubmitted = true;
+					if (authSubmitLabel) authSubmitLabel.textContent = "Redirecting…";
+					setTimeout(() => {
+						window.location.href = "https://clearcutoff.in";
+					}, 500);
+				}
+			});
+			authInput?.addEventListener("focus", () => {
+				if (!authInput) return;
+				if (authInput.value.length !== 10) setInputState("focused");
+			});
+			authInput?.addEventListener("blur", () => {
+				if (!authInput) return;
+				if (authInput.value.length !== 10) setInputState("resting");
+			});
+		</script>
+	</body>
+</html>

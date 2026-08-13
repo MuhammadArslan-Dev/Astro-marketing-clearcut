@@ -1,5 +1,20 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
+import { htetCopy, guaranteeBadge, pricingPoints, type Locale } from "../../i18n/copy";
+
+// Optional single dynamic segment (Astro's [...locale] rest-param syntax,
+// restricted to exactly the two paths below via getStaticPaths) — one file
+// generates BOTH /htet (locale param absent) and /hi/htet (locale param =
+// "hi"). See src/pages/[...locale]/landing.astro for the same pattern with
+// more detail.
+export function getStaticPaths() {
+	return [{ params: { locale: undefined } }, { params: { locale: "hi" } }];
+}
+
+const locale: Locale = Astro.params.locale === "hi" ? "hi" : "en";
+const examName = "HTET";
+const t = htetCopy(locale, examName);
+const gb = guaranteeBadge[locale];
 
 // Static asset paths must go through BASE_URL (see src/pages/index.astro
 // for why) — normalized here since its trailing slash isn't guaranteed.
@@ -8,10 +23,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const examUrl = "https://clearcutoff.in/exam/htet";
 const logoUrl =
 	"https://cc-teaching-content-ind.s3.dualstack.ap-south-1.amazonaws.com/exam%20logo/Webp/htet.webp";
-
-const title = "HTET Exam Preparation Online — PYQ Mock Tests, Notes & Videos | Clearcutoff";
-const description =
-	"Prepare for HTET (Haryana Teacher Eligibility Test) with PYQ-based mock tests, sectional tests, full-length papers, notes and video lessons — all in one place.";
 
 // This page intentionally mirrors the real production course page at
 // clearcutoff.in/teaching/htet-v1 (Next.js app, apps/landing) — same
@@ -32,30 +43,11 @@ const trustedLogos = [
 	{ name: "UGC", state: "India", logo: `${S3_LOGOS}/UGC.webp` },
 ];
 
-const heroFeatures = [
-	"Smart prep for the HTET exam",
-	"Full course + test series",
-	"Refund assurance policy",
-];
+const pricingPointsList = pricingPoints(locale, examName);
 
-const pricingPoints = [
-	{
-		title: "All subjects included",
-		desc: "Study all HTET subjects in one place.",
-	},
-	{
-		title: "Unlimited practice tests",
-		desc: "Practise with mini tests, sectional tests and PYQs — and boost your score.",
-	},
-	{
-		title: "Choose your plan",
-		desc: "Unlimited access for 6 or 15 months. Study at your own pace, whenever your exam is.",
-	},
-	{
-		title: "3-day free trial before paying",
-		desc: "Start preparing for HTET without paying anything.",
-	},
-];
+const switcherUrls = { en: `${base}/htet`, hi: `${base}/hi/htet` };
+const enUrl = new URL(switcherUrls.en, Astro.site).href;
+const hiUrl = new URL(switcherUrls.hi, Astro.site).href;
 
 const ICONS = {
 	check:
@@ -72,7 +64,7 @@ const btnOutline =
 	"inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap px-5 py-2 text-sm bg-brand/10 text-brand border-2 border-brand transition hover:bg-brand/20";
 ---
 
-<html lang="en">
+<html lang={locale}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -80,13 +72,16 @@ const btnOutline =
 		<link rel="icon" type="image/png" href={`${base}/favicon.png`} />
 		<meta name="generator" content={Astro.generator} />
 
-		<title>{title}</title>
-		<meta name="description" content={description} />
+		<title>{t.metaTitle}</title>
+		<meta name="description" content={t.metaDescription} />
 		<link rel="canonical" href={Astro.url.href} />
+		<link rel="alternate" hreflang="en" href={enUrl} />
+		<link rel="alternate" hreflang="hi" href={hiUrl} />
+		<link rel="alternate" hreflang="x-default" href={enUrl} />
 
 		<meta property="og:type" content="website" />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
+		<meta property="og:title" content={t.metaTitle} />
+		<meta property="og:description" content={t.metaDescription} />
 		<meta property="og:url" content={Astro.url.href} />
 		<meta property="og:image" content={logoUrl} />
 		<meta name="twitter:card" content="summary" />
@@ -95,7 +90,14 @@ const btnOutline =
 		<header class="border-b border-border-subtle">
 			<div class="max-w-[1100px] mx-auto px-3 flex items-center justify-between py-4">
 				<span class="font-extrabold text-lg tracking-tight text-text-normal">Clear Cutoff</span>
-				<a class={btnPrimary} href={examUrl}>Continue Free Prep »</a>
+				<div class="flex items-center gap-4">
+					<div class="flex items-center gap-1.5 text-sm font-semibold" aria-label="Language">
+						<a href={switcherUrls.en} class={locale === "en" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>EN</a>
+						<span class="text-border-subtle">|</span>
+						<a href={switcherUrls.hi} class={locale === "hi" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>हिं</a>
+					</div>
+					<a class={btnPrimary} href={examUrl}>{t.continueFreePrep}</a>
+				</div>
 			</div>
 		</header>
 
@@ -104,20 +106,18 @@ const btnOutline =
 			<section class="py-9 md:py-20 px-3">
 				<div class="max-w-[1100px] mx-auto grid md:grid-cols-11 gap-10 md:gap-12 items-center">
 					<div class="md:col-span-6">
-						<h1 class="display-small md:display-medium font-semibold text-text-normal mb-4">
-							Crack the <span class="text-brand">HTET</span> exam with PYQ-based tests, notes and videos
-						</h1>
+						<h1 class="display-small md:display-medium font-semibold text-text-normal mb-4" set:html={t.heroHeading} />
 						<p class="body-large text-text-subtle mb-6">
-							Real exam-level questions, sectional tests and full-length papers — all in one place.
+							{t.heroSubtitle}
 						</p>
 						<div class="flex flex-col gap-3">
 							<div class="flex flex-wrap items-center gap-3">
-								<a class={btnPrimary} href={examUrl}>Continue Free Prep »</a>
-								<a class={btnOutline} href={examUrl}>3-day free trial</a>
+								<a class={btnPrimary} href={examUrl}>{t.continueFreePrep}</a>
+								<a class={btnOutline} href={examUrl}>{t.trial}</a>
 							</div>
 							<div class="flex items-center gap-1.5 text-sm text-text-subtle">
 								<span set:html={ICONS.fire} />
-								No card or payment required
+								{t.noCard}
 							</div>
 						</div>
 						<div class="mt-6 inline-flex items-center gap-3 bg-bg-subtle border border-border-subtle rounded-lg px-4 py-2.5">
@@ -125,12 +125,12 @@ const btnOutline =
 								<span set:html={ICONS.star} />
 								4.9
 							</span>
-							<span class="text-xs text-text-muted leading-tight">Average rating given<br />by our students</span>
+							<span class="text-xs text-text-muted leading-tight" set:html={t.ratingCaption} />
 						</div>
 					</div>
 					<div class="md:col-span-5 flex flex-col gap-3">
 						{
-							heroFeatures.map((f) => (
+							t.heroFeatures.map((f) => (
 								<div class="flex items-center gap-3 border border-border-subtle bg-brand/[0.03] px-4 py-5 rounded-md">
 									<img src={`${base}/badge-green.svg`} alt="" width="20" height="20" />
 									<span class="heading-small font-semibold text-text-normal">{f}</span>
@@ -144,9 +144,7 @@ const btnOutline =
 			<!-- ============ Trusted-by logo marquee (mirrors CourseLogoCarousal) ============ -->
 			<section class="py-4">
 				<div class="max-w-[1100px] mx-auto px-3 flex flex-col gap-6">
-					<h2 class="heading-large font-semibold text-center text-text-normal">
-						Trusted by <span class="text-brand">10,000+</span> students to pass TET exams across India
-					</h2>
+					<h2 class="heading-large font-semibold text-center text-text-normal" set:html={t.trustedByHeading} />
 					<div class="overflow-hidden">
 						<div class="flex items-center gap-14 w-max animate-marquee">
 							{
@@ -176,12 +174,10 @@ const btnOutline =
 					<div class="grid md:grid-cols-10 gap-10 md:gap-12 items-center">
 						<div class="md:col-span-6 flex flex-col gap-5">
 							<div>
-								<p class="text-brand font-semibold text-sm mb-2">Simple. Transparent. Affordable.</p>
-								<h2 class="display-small font-semibold text-text-normal">
-									<span class="text-brand">One</span> price, <span class="text-brand">everything</span> included!
-								</h2>
+								<p class="text-brand font-semibold text-sm mb-2">{t.pricingEyebrow}</p>
+								<h2 class="display-small font-semibold text-text-normal" set:html={t.pricingHeading} />
 								<p class="body-large text-text-subtle mt-3">
-									Pay once. 6 months of access. Everything you need to pass on the first attempt.
+									{t.pricingDescription}
 								</p>
 							</div>
 
@@ -193,41 +189,40 @@ const btnOutline =
 									height="96"
 								/>
 								<div class="text-center md:text-left">
-									<p class="heading-small font-semibold text-text-normal">
-										Get a <span class="text-brand underline">refund</span> if you don't pass the exam!
-									</p>
-									<p class="body-medium text-text-muted">No risk, just results.</p>
+									<p class="heading-small font-semibold text-text-normal" set:html={gb.title} />
+									<p class="body-medium text-text-muted">{gb.subtitle}</p>
 								</div>
 							</div>
 
 							<div>
-								<p class="heading-large font-semibold text-text-normal">
-									<span class="text-brand">10,000+</span> students used this to pass the TET exam.
-								</p>
+								<p class="heading-large font-semibold text-text-normal" set:html={t.studentsHeadline} />
 								<p class="body-medium text-text-subtle mt-1">
-									Join thousands of successful TET aspirants who chose smart, affordable prep over expensive
-									coaching!
+									{locale === "hi"
+										? "हजारों सफल TET अभ्यर्थियों से जुड़ें जिन्होंने महंगी कोचिंग के बजाय स्मार्ट और किफायती तैयारी चुनी!"
+										: "Join thousands of successful TET aspirants who chose smart, affordable prep over expensive coaching!"}
 								</p>
 								<p class="flex items-center gap-1.5 body-medium font-semibold text-text-normal mt-2">
 									<span set:html={ICONS.starGreen} />
-									4.9+ average rating from our students!
+									4.9+ {locale === "hi" ? "हमारे विद्यार्थियों द्वारा औसत रेटिंग!" : "average rating from our students!"}
 								</p>
 							</div>
 						</div>
 
 						<div class="md:col-span-4 flex justify-center md:justify-end">
 							<div class="w-full max-w-[390px] rounded-xl border border-border-subtle bg-white p-6 shadow-sm">
-								<h3 class="heading-xlarge font-semibold text-text-normal text-center">exam</h3>
+								<h3 class="heading-xlarge font-semibold text-text-normal text-center">
+									{locale === "hi" ? `${examName} परीक्षा` : `${examName} exam`}
+								</h3>
 								<hr class="border-t border-border-subtle my-4" />
 								<div class="bg-brand/[0.09] rounded-lg h-[72px] flex items-center justify-center gap-4">
 									<span class="heading-2xlarge font-semibold text-text-normal">
 										<span class="heading-xlarge font-semibold">₹</span>99
 									</span>
-									<span class="body-large text-text-subtle">6-month subscription</span>
+									<span class="body-large text-text-subtle">{t.priceSubscription}</span>
 								</div>
 								<ul class="flex flex-col gap-3 mt-4">
 									{
-										pricingPoints.map((p) => (
+										pricingPointsList.map((p) => (
 											<li class="flex items-start gap-3">
 												<span class="flex-none mt-0.5" set:html={ICONS.check} />
 												<span>
@@ -239,7 +234,7 @@ const btnOutline =
 									}
 								</ul>
 								<hr class="border-t border-border-subtle my-4" />
-								<a class={`${btnPrimary} w-full`} href={examUrl}>Start for free »</a>
+								<a class={`${btnPrimary} w-full`} href={examUrl}>{t.startForFree}</a>
 							</div>
 						</div>
 					</div>
