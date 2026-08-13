@@ -1,6 +1,7 @@
 ---
 import "../../styles/global.css";
 import { landing, chrome, guaranteeBadge, pricingPoints, trustedByHeading, type Locale } from "../../i18n/copy";
+import Button from "../../components/Button.astro";
 
 // Optional single dynamic segment (Astro's [[param]] syntax) — one file
 // generates BOTH /landing (locale param absent) and /hi/landing (locale
@@ -100,8 +101,6 @@ const ICONS: Record<string, string> = {
 		'<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.963 2.286a.75.75 0 00-1.071-.136 9.742 9.742 0 00-3.539 6.176 7.547 7.547 0 01-1.705-1.715.75.75 0 00-1.152-.082A9 9 0 1015.68 4.534a7.46 7.46 0 01-2.717-2.248zM15.75 14.25a3.75 3.75 0 11-7.313-1.172c.628.465 1.35.81 2.133.998a5.27 5.27 0 01-.31-1.825 5.266 5.266 0 011.539-3.716 3.75 3.75 0 013.951 5.715z" clip-rule="evenodd"></path></svg>',
 	cross:
 		'<svg class="h-5 w-5 text-red-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/></svg>',
-	arrow:
-		'<svg width="12" height="16" viewBox="0 0 12 16" fill="none"><path d="M0.195254 3.19526C0.455603 2.93491 0.878264 2.93491 1.13861 3.19526L4.99994 7.05659C5.52064 7.57729 5.52064 8.42163 4.99994 8.94233L1.13861 12.8046C0.878264 13.065 0.455603 13.065 0.195254 12.8046C-0.0650791 12.5443 -0.0650901 12.1216 0.195254 11.8613L4.05756 7.99995L0.195254 4.13765C-0.0648142 3.87738 -0.0647266 3.45558 0.195254 3.19526ZM4.36225 3.19526C4.62259 2.93492 5.04428 2.93493 5.30463 3.19526L9.16693 7.05659C9.68761 7.57727 9.68757 8.42163 9.16693 8.94233L5.30463 12.8046C5.0443 13.0646 4.6225 13.0647 4.36225 13.0647C4.1019 13.0647 4.1019 12.1216 4.36225 11.8613L8.22455 7.99995L4.36225 4.13765C4.10196 3.87734 4.10205 3.45562 4.36225 3.19526Z" fill="white"/></svg>',
 	chevron:
 		'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>',
 	phone:
@@ -115,11 +114,6 @@ const ICONS: Record<string, string> = {
 	instagram:
 		'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>',
 };
-
-const btnPrimary =
-	"relative inline-flex items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap bg-brand text-white transition hover:bg-[#006fdb] active:brightness-90";
-const btnOutline =
-	"inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap border-2 border-brand text-[#005cb8] bg-transparent transition hover:bg-brand/[0.09]";
 ---
 
 <html lang={locale}>
@@ -184,15 +178,9 @@ const btnOutline =
 						<span class="text-border-subtle">|</span>
 						<a href={switcherUrls.hi} class={locale === "hi" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>हिं</a>
 					</div>
-					<button
-						type="button"
-						data-open-auth
-						class={`${btnPrimary} shimmer-btn hidden md:inline-flex w-[200px] px-4 py-2 text-sm`}
-					>
-						<span class="btn-shimmer-overlay"></span>
-						<span class="relative z-[1]">{c.continueFree}</span>
-						<span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
-					</button>
+					<Button openAuth shimmer icon size="sm" class="hidden md:inline-flex w-[200px]">
+						{c.continueFree}
+					</Button>
 				</div>
 			</nav>
 		</header>
@@ -212,9 +200,7 @@ const btnOutline =
 						</p>
 						<div class="flex flex-col md:flex-row items-center gap-6 w-full">
 							<div class="flex flex-col items-center md:items-start gap-3">
-								<button type="button" data-open-auth class={`${btnPrimary} px-6 py-2.5 text-base`}>
-									{c.continueFree}
-								</button>
+								<Button openAuth>{c.continueFree}</Button>
 								<div class="flex flex-col gap-1 items-center md:items-start">
 									<span
 										class="px-3 py-1 rounded-full bg-brand/10 text-brand body-medium border-2 border-brand font-semibold"
@@ -290,7 +276,7 @@ const btnOutline =
 						class="flex flex-col md:flex-row items-center justify-center gap-3 text-center"
 					>
 						<p class="heading-small font-semibold text-text-subtle" set:html={t.exploreOtherExams} />
-						<a class={`${btnOutline} px-3 py-1 text-sm`} href={coursesUrl}>{t.seeAllCourses}</a>
+						<Button variant="outline" size="sm" href={coursesUrl}>{t.seeAllCourses}</Button>
 					</div>
 				</div>
 			</section>
@@ -372,14 +358,9 @@ const btnOutline =
 													</p>
 												</div>
 												<p class="body-large text-text-muted">{step.desc}</p>
-												<button
-													type="button"
-													data-open-auth
-													class={`${btnOutline} w-[250px] justify-center px-6 py-2 text-base min-h-[44px]`}
-												>
+												<Button variant="outline" openAuth icon class="w-[250px]">
 													{step.btn}
-													<span set:html={ICONS.arrow.replace(/fill="white"/, 'fill="#005cb8"')} />
-												</button>
+												</Button>
 											</div>
 										</div>
 										<div class="hidden md:flex justify-center order-2">
@@ -573,14 +554,7 @@ const btnOutline =
 											))}
 										</ul>
 										<hr class="border-t border-[#CDD7E1] my-3" />
-										<button
-											type="button"
-											data-open-auth
-											class={`${btnPrimary} w-full justify-center px-6 py-2.5 text-base`}
-										>
-											{t.pricing.startForFree}
-											<span set:html={ICONS.arrow} />
-										</button>
+										<Button openAuth icon fullWidth>{t.pricing.startForFree}</Button>
 									</div>
 								))
 							}
@@ -698,15 +672,7 @@ const btnOutline =
 		     here (it gets the header's persistent CTA instead). -->
 		<div class="sticky bottom-0 z-50 left-0 right-0">
 			<div class="md:hidden bg-white w-full py-3 px-3 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
-				<button
-					type="button"
-					data-open-auth
-					class={`${btnPrimary} shimmer-btn w-full justify-center px-6 py-2.5 text-base`}
-				>
-					<span class="btn-shimmer-overlay"></span>
-					<span class="relative z-[1]">{t.floatingCta}</span>
-					<span class="btn-arrow relative z-[1]" set:html={ICONS.arrow} />
-				</button>
+				<Button openAuth shimmer icon fullWidth>{t.floatingCta}</Button>
 			</div>
 		</div>
 

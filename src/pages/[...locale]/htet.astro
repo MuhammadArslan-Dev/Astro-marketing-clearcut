@@ -1,6 +1,7 @@
 ---
 import "../../styles/global.css";
 import { htetCopy, guaranteeBadge, pricingPoints, type Locale } from "../../i18n/copy";
+import Button from "../../components/Button.astro";
 
 // Optional single dynamic segment (Astro's [...locale] rest-param syntax,
 // restricted to exactly the two paths below via getStaticPaths) — one file
@@ -57,11 +58,6 @@ const ICONS = {
 	starGreen:
 		'<svg width="16" height="16" viewBox="0 0 24 24" fill="#00A251"><path d="M12 2.5l2.9 6.3 6.8.7-5.1 4.7 1.5 6.8-6.1-3.5-6.1 3.5 1.5-6.8-5.1-4.7 6.8-.7z"></path></svg>',
 };
-
-const btnPrimary =
-	"inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap px-6 py-3 text-base bg-brand text-white transition hover:bg-brand-dark active:brightness-90";
-const btnOutline =
-	"inline-flex items-center justify-center gap-1 rounded-full font-semibold whitespace-nowrap px-5 py-2 text-sm bg-brand/10 text-brand border-2 border-brand transition hover:bg-brand/20";
 ---
 
 <html lang={locale}>
@@ -96,7 +92,7 @@ const btnOutline =
 						<span class="text-border-subtle">|</span>
 						<a href={switcherUrls.hi} class={locale === "hi" ? "text-brand" : "text-text-muted hover:text-brand transition-colors"}>हिं</a>
 					</div>
-					<a class={btnPrimary} href={examUrl}>{t.continueFreePrep}</a>
+					<Button href={examUrl} size="lg">{t.continueFreePrep}</Button>
 				</div>
 			</div>
 		</header>
@@ -112,8 +108,8 @@ const btnOutline =
 						</p>
 						<div class="flex flex-col gap-3">
 							<div class="flex flex-wrap items-center gap-3">
-								<a class={btnPrimary} href={examUrl}>{t.continueFreePrep}</a>
-								<a class={btnOutline} href={examUrl}>{t.trial}</a>
+								<Button href={examUrl} size="lg">{t.continueFreePrep}</Button>
+								<Button variant="secondary" href={examUrl} size="sm">{t.trial}</Button>
 							</div>
 							<div class="flex items-center gap-1.5 text-sm text-text-subtle">
 								<span set:html={ICONS.fire} />
@@ -234,7 +230,7 @@ const btnOutline =
 									}
 								</ul>
 								<hr class="border-t border-border-subtle my-4" />
-								<a class={`${btnPrimary} w-full`} href={examUrl}>{t.startForFree}</a>
+								<Button href={examUrl} size="lg" fullWidth>{t.startForFree}</Button>
 							</div>
 						</div>
 					</div>

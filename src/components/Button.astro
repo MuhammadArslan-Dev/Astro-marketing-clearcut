@@ -1,0 +1,178 @@
+---
+// Reusable CTA button — consolidates what used to be hand-copied
+// `btnPrimary`/`btnOutline` class strings + inline shimmer/arrow markup
+// repeated at every call site in landing.astro and htet.astro.
+//
+// Variant/size naming mirrors the real Turborepo Button
+// (packages/ui/src/button.tsx: solid/outlined/soft/plain →
+// primary/outline/secondary/ghost here) since that's this project's
+// established source of truth for button styling. The prop surface below
+// covers the full set of states a design-system button is expected to
+// support — variant, size, hover/active/focus-visible/disabled, loading,
+// left/right icons with optional hover animation, full width, and this
+// project's own shimmer sweep — even though only a subset of that surface
+// is exercised by the two pages that currently use it. `danger`/`ghost`/
+// `xs`/`xl`/`loading`/icon slots are unused today but are real, tested
+// states, not placeholders — see PROJECT_PLAN.md for what was verified.
+//
+// Renders as <a> when `href` is passed, otherwise <button> — a page can't
+// know in advance which one a given CTA needs (htet.astro links directly,
+// landing.astro opens a modal), so the component decides from the props it
+// was given rather than the caller choosing the tag itself.
+export interface Props {
+	variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+	size?: "xs" | "sm" | "md" | "lg" | "xl";
+	fullWidth?: boolean;
+	/** This project's continuous light-sweep CTA treatment (see
+	 * .shimmer-btn in global.css). Independent of `loading` — a button can
+	 * shimmer while idle to draw attention; loading always overrides it
+	 * visually since the spinner takes the icon's place. */
+	shimmer?: boolean;
+	/** Trailing arrow icon — sugar for the one icon this project actually
+	 * uses, equivalent to passing the same SVG into the `icon-right` slot.
+	 * Uses currentColor, so it auto-matches the variant's text color
+	 * (primary's white, outline/secondary/ghost's brand blue) without the
+	 * fill-swapping hack the old inline SVGs needed. */
+	icon?: boolean;
+	/** Hover-triggered motion applied to whichever icon is present
+	 * (icon-right slot, `icon` shorthand, or icon-left slot). CSS-only via
+	 * the group-hover pattern — "slide" nudges the icon in its natural
+	 * reading direction, matching the real Button's default arrow feel. */
+	iconAnimation?: "none" | "slide" | "bounce" | "pulse";
+	/** Replaces the label with a spinner, sets disabled + aria-busy. Static
+	 * prop (this is a build-time Astro component, not a client framework
+	 * component) — a page's own script toggles it by swapping classes on
+	 * two pre-rendered states, or a form's native submit affordance covers
+	 * it without JS at all. */
+	loading?: boolean;
+	disabled?: boolean;
+	href?: string;
+	target?: string;
+	rel?: string;
+	/** Adds data-open-auth, picked up by the page's shared
+	 * `[data-open-auth]` click handler that opens the auth modal. Only
+	 * meaningful on pages that actually render that modal (landing.astro);
+	 * htet.astro has none, so its buttons pass `href` instead. */
+	openAuth?: boolean;
+	type?: "button" | "submit";
+	class?: string;
+}
+
+const {
+	variant = "primary",
+	size = "md",
+	fullWidth = false,
+	shimmer = false,
+	icon = false,
+	iconAnimation = "none",
+	loading = false,
+	disabled = false,
+	href,
+	target,
+	rel,
+	openAuth = false,
+	type = "button",
+	class: className = "",
+	...rest
+} = Astro.props;
+
+const Tag = href ? "a" : "button";
+const isDisabled = disabled || loading;
+const hasLeftIcon = Astro.slots.has("icon-left");
+const hasRightIcon = icon || Astro.slots.has("icon-right");
+
+// `group` (inert on its own) activates the icon's opt-in
+// `group-hover:*` motion classes below — default rendering (iconAnimation
+// "none") is unchanged by its presence.
+const base =
+	"group relative inline-flex items-center justify-center gap-1.5 rounded-full font-semibold whitespace-nowrap transition select-none outline-none active:brightness-90 focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed";
+
+const variants: Record<NonNullable<Props["variant"]>, string> = {
+	primary: "bg-brand text-white hover:bg-[#006fdb]",
+	secondary: "bg-brand/10 text-brand border-2 border-brand hover:bg-brand/20",
+	outline: "border-2 border-brand text-[#005cb8] bg-transparent hover:bg-brand/[0.09]",
+	ghost: "bg-transparent text-[#005cb8] hover:bg-brand/[0.08]",
+	danger: "bg-[#dc2626] text-white hover:bg-[#b91c1c]",
+};
+
+const sizes: Record<NonNullable<Props["size"]>, string> = {
+	xs: "px-3 py-1 text-xs min-h-[28px] gap-1",
+	sm: "px-4 py-2 text-sm min-h-[32px]",
+	md: "px-6 py-2.5 text-base min-h-[44px]",
+	lg: "px-6 py-3 text-base min-h-[48px]",
+	xl: "px-8 py-3.5 text-xl min-h-[52px]",
+};
+
+// Hover-only icon motion — every branch is inert until the button is
+// hovered (or focused, for keyboard users), so default rendering is
+// untouched when iconAnimation is "none".
+const iconAnimationClass: Record<NonNullable<Props["iconAnimation"]>, string> = {
+	none: "",
+	slide: "transition-transform duration-200 group-hover:translate-x-1 group-focus-visible:translate-x-1",
+	bounce: "group-hover:animate-bounce",
+	pulse: "group-hover:animate-pulse",
+};
+
+const classes = [
+	base,
+	variants[variant],
+	sizes[size],
+	fullWidth ? "w-full justify-center" : "",
+	shimmer && !loading ? "shimmer-btn" : "",
+	className,
+]
+	.filter(Boolean)
+	.join(" ");
+---
+
+<Tag
+	class={classes}
+	href={href}
+	target={target}
+	rel={rel}
+	type={href ? undefined : type}
+	disabled={href ? undefined : isDisabled}
+	aria-disabled={href && isDisabled ? "true" : undefined}
+	aria-busy={loading ? "true" : undefined}
+	data-open-auth={openAuth ? "" : undefined}
+	{...rest}
+>
+	{shimmer && !loading && <span class="btn-shimmer-overlay"></span>}
+	<span class="relative z-[1] inline-flex items-center gap-1.5">
+		{
+			loading ? (
+				<svg class="h-4 w-4 shrink-0 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+					<path
+						class="opacity-75"
+						fill="currentColor"
+						d="M4 12a8 8 0 018-8V0C5.373 0 22 6.477 22 12h-4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+					/>
+				</svg>
+			) : (
+				hasLeftIcon && (
+					<span class:list={["inline-flex shrink-0", iconAnimationClass[iconAnimation]]}>
+						<slot name="icon-left" />
+					</span>
+				)
+			)
+		}
+		{!loading && <slot />}
+		{
+			!loading && hasRightIcon && (
+				<span class:list={["btn-arrow relative z-[1] inline-flex shrink-0", iconAnimationClass[iconAnimation]]}>
+					<slot name="icon-right">
+						{icon && (
+							<svg width="12" height="16" viewBox="0 0 12 16" fill="none">
+								<path
+									d="M0.195254 3.19526C0.455603 2.93491 0.878264 2.93491 1.13861 3.19526L4.99994 7.05659C5.52064 7.57729 5.52064 8.42163 4.99994 8.94233L1.13861 12.8046C0.878264 13.065 0.455603 13.065 0.195254 12.8046C-0.0650791 12.5443 -0.0650901 12.1216 0.195254 11.8613L4.05756 7.99995L0.195254 4.13765C-0.0648142 3.87738 -0.0647266 3.45558 0.195254 3.19526ZM4.36225 3.19526C4.62259 2.93492 5.04428 2.93493 5.30463 3.19526L9.16693 7.05659C9.68761 7.57727 9.68757 8.42163 9.16693 8.94233L5.30463 12.8046C5.0443 13.0646 4.6225 13.0647 4.36225 13.0647C4.1019 13.0647 4.1019 12.1216 4.36225 11.8613L8.22455 7.99995L4.36225 4.13765C4.10196 3.87734 4.10205 3.45562 4.36225 3.19526Z"
+									fill="currentColor"
+								></path>
+							</svg>
+						)}
+					</slot>
+				</span>
+			)
+		}
+	</span>
+</Tag>
