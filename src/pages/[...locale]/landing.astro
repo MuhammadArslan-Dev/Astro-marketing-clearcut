@@ -30,9 +30,13 @@ const coursesUrl = "https://clearcutoff.in/teaching";
 // Hindi copy in src/i18n/copy.ts, extracted from each section's real
 // Record<Locale, ...> content object. See PROJECT_PLAN.md for the mapping.
 
-const switcherUrls = { en: `${base}/landing`, hi: `${base}/hi/landing` };
+// Locale segment goes BEFORE /go, not after (so /hi/go/landing, not
+// /go/hi/landing) — the worker (worker/src/index.ts) strips /go from
+// wherever it lands in the path, so this only changes the public URL shape.
+const switcherUrls = { en: `${base}/landing`, hi: `/hi${base}/landing` };
 const enUrl = new URL(switcherUrls.en, Astro.site).href;
 const hiUrl = new URL(switcherUrls.hi, Astro.site).href;
+const canonicalUrl = locale === "hi" ? hiUrl : enUrl;
 
 // Exam short names + Indian state names are NOT translated in the real
 // source (confirmed via research) — same data for both locales.
@@ -126,7 +130,7 @@ const ICONS: Record<string, string> = {
 
 		<title>{t.metaTitle}</title>
 		<meta name="description" content={t.metaDescription} />
-		<link rel="canonical" href={Astro.url.href} />
+		<link rel="canonical" href={canonicalUrl} />
 		<link rel="alternate" hreflang="en" href={enUrl} />
 		<link rel="alternate" hreflang="hi" href={hiUrl} />
 		<link rel="alternate" hreflang="x-default" href={enUrl} />
@@ -134,7 +138,7 @@ const ICONS: Record<string, string> = {
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={t.metaTitle} />
 		<meta property="og:description" content={t.metaDescription} />
-		<meta property="og:url" content={Astro.url.href} />
+		<meta property="og:url" content={canonicalUrl} />
 		<meta name="twitter:card" content="summary" />
 	</head>
 	<body class="m-0 p-0 font-sans text-text-normal bg-white antialiased">

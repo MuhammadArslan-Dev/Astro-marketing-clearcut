@@ -46,9 +46,13 @@ const trustedLogos = [
 
 const pricingPointsList = pricingPoints(locale, examName);
 
-const switcherUrls = { en: `${base}/htet`, hi: `${base}/hi/htet` };
+// Locale segment goes BEFORE /go, not after (so /hi/go/htet, not
+// /go/hi/htet) — the worker (worker/src/index.ts) strips /go from
+// wherever it lands in the path, so this only changes the public URL shape.
+const switcherUrls = { en: `${base}/htet`, hi: `/hi${base}/htet` };
 const enUrl = new URL(switcherUrls.en, Astro.site).href;
 const hiUrl = new URL(switcherUrls.hi, Astro.site).href;
+const canonicalUrl = locale === "hi" ? hiUrl : enUrl;
 
 const ICONS = {
 	check:
@@ -70,7 +74,7 @@ const ICONS = {
 
 		<title>{t.metaTitle}</title>
 		<meta name="description" content={t.metaDescription} />
-		<link rel="canonical" href={Astro.url.href} />
+		<link rel="canonical" href={canonicalUrl} />
 		<link rel="alternate" hreflang="en" href={enUrl} />
 		<link rel="alternate" hreflang="hi" href={hiUrl} />
 		<link rel="alternate" hreflang="x-default" href={enUrl} />
@@ -78,7 +82,7 @@ const ICONS = {
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={t.metaTitle} />
 		<meta property="og:description" content={t.metaDescription} />
-		<meta property="og:url" content={Astro.url.href} />
+		<meta property="og:url" content={canonicalUrl} />
 		<meta property="og:image" content={logoUrl} />
 		<meta name="twitter:card" content="summary" />
 	</head>

@@ -2,11 +2,14 @@ name = "clearcut-go-router"
 main = "src/index.ts"
 compatibility_date = "2026-08-11"
 
-# Two patterns needed — "/go/*" alone does not match the bare "/go" path
-# (no trailing segment).
+# Four patterns needed — "/go/*" alone does not match the bare "/go" path
+# (no trailing segment), and the "hi" locale prefix (src/i18n/copy.ts)
+# sits in front of /go, e.g. "/hi/go/landing", so it needs its own pair.
 routes = [
 	{ pattern = "clearcutoff.in/go", zone_name = "clearcutoff.in" },
 	{ pattern = "clearcutoff.in/go/*", zone_name = "clearcutoff.in" },
+	{ pattern = "clearcutoff.in/hi/go", zone_name = "clearcutoff.in" },
+	{ pattern = "clearcutoff.in/hi/go/*", zone_name = "clearcutoff.in" },
 ]
 
 [vars]

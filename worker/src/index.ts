@@ -7,26 +7,45 @@ export interface Env {
 
 const PREFIX = "/go";
 
-function isGoPath(pathname: string): boolean {
-	return pathname === PREFIX || pathname.startsWith(PREFIX + "/");
+// Non-English locales get their own leading path segment (see
+// src/i18n/copy.ts Locale type) — English has none. Public URLs put that
+// segment BEFORE /go: "/hi/go/landing", not "/go/hi/landing".
+const LOCALES = ["hi"];
+
+// Matches "/go", "/go/...", "/hi/go", "/hi/go/..." and splits off the
+// locale segment (if any) from whatever comes after /go.
+function matchGoPath(pathname: string): { localePrefix: string; rest: string } | null {
+	if (pathname === PREFIX || pathname.startsWith(PREFIX + "/")) {
+		return { localePrefix: "", rest: pathname.slice(PREFIX.length) };
+	}
+	for (const locale of LOCALES) {
+		const goPrefix = `/${locale}${PREFIX}`;
+		if (pathname === goPrefix || pathname.startsWith(goPrefix + "/")) {
+			return { localePrefix: `/${locale}`, rest: pathname.slice(goPrefix.length) };
+		}
+	}
+	return null;
 }
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
 
-		// Route is scoped to /go and /go/* in wrangler.toml, so this should
-		// always be true — kept as a safety net in case the route pattern is
-		// ever widened.
-		if (!isGoPath(url.pathname)) {
+		// Route is scoped to /go, /go/*, /hi/go and /hi/go/* in wrangler.toml,
+		// so this should always match — kept as a safety net in case the route
+		// pattern is ever widened.
+		const match = matchGoPath(url.pathname);
+		if (!match) {
 			return fetch(request);
 		}
 
 		// astro.config.mjs sets base: '/go', which only prefixes the *links*
 		// Astro emits — it does not move the build output into a /go folder.
-		// So "/go/react-course" on the Pages deployment is just "/react-course".
-		// "/go" itself (no trailing segment) maps to the site root "/".
-		const upstreamPath = url.pathname === PREFIX ? "/" : url.pathname.slice(PREFIX.length);
+		// dist/ mirrors routes with the locale segment (if any) up front and no
+		// /go at all: "/go/react-course" -> "/react-course", "/hi/go/landing"
+		// -> "/hi/landing". Bare "/go" or "/hi/go" (no trailing segment) maps
+		// to that locale's site root.
+		const upstreamPath = match.rest === "" ? match.localePrefix || "/" : `${match.localePrefix}${match.rest}`;
 
 		const upstreamUrl = new URL(env.PAGES_ORIGIN);
 		upstreamUrl.pathname = upstreamPath;
